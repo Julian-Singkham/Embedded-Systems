@@ -1,0 +1,2448 @@
+
+Lab 8 Temp Sensor.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   000001c4  08000000  08000000  00010000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         00000bdc  080001c4  080001c4  000101c4  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       00000000  08000da0  08000da0  0002007c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .ARM.extab    00000000  08000da0  08000da0  0002007c  2**0
+                  CONTENTS
+  4 .ARM          00000000  08000da0  08000da0  0002007c  2**0
+                  CONTENTS
+  5 .preinit_array 00000000  08000da0  08000da0  0002007c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .init_array   00000004  08000da0  08000da0  00010da0  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  7 .fini_array   00000004  08000da4  08000da4  00010da4  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  8 .data         0000007c  20000000  08000da8  00020000  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .bss          0000001c  2000007c  08000e24  0002007c  2**2
+                  ALLOC
+ 10 ._user_heap_stack 00000600  20000098  08000e24  00020098  2**0
+                  ALLOC
+ 11 .ARM.attributes 00000030  00000000  00000000  0002007c  2**0
+                  CONTENTS, READONLY
+ 12 .debug_line   00000567  00000000  00000000  000200ac  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_info   0000012c  00000000  00000000  00020613  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 14 .debug_abbrev 0000009e  00000000  00000000  0002073f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 15 .debug_aranges 00000108  00000000  00000000  000207e0  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 16 .debug_str    000000c4  00000000  00000000  000208e8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 17 .debug_ranges 00000020  00000000  00000000  000209b0  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 18 .debug_frame  0000002c  00000000  00000000  000209d0  2**2
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+080001c4 <__do_global_dtors_aux>:
+ 80001c4:	b510      	push	{r4, lr}
+ 80001c6:	4c05      	ldr	r4, [pc, #20]	; (80001dc <__do_global_dtors_aux+0x18>)
+ 80001c8:	7823      	ldrb	r3, [r4, #0]
+ 80001ca:	b933      	cbnz	r3, 80001da <__do_global_dtors_aux+0x16>
+ 80001cc:	4b04      	ldr	r3, [pc, #16]	; (80001e0 <__do_global_dtors_aux+0x1c>)
+ 80001ce:	b113      	cbz	r3, 80001d6 <__do_global_dtors_aux+0x12>
+ 80001d0:	4804      	ldr	r0, [pc, #16]	; (80001e4 <__do_global_dtors_aux+0x20>)
+ 80001d2:	f3af 8000 	nop.w
+ 80001d6:	2301      	movs	r3, #1
+ 80001d8:	7023      	strb	r3, [r4, #0]
+ 80001da:	bd10      	pop	{r4, pc}
+ 80001dc:	2000007c 	.word	0x2000007c
+ 80001e0:	00000000 	.word	0x00000000
+ 80001e4:	08000d88 	.word	0x08000d88
+
+080001e8 <frame_dummy>:
+ 80001e8:	b508      	push	{r3, lr}
+ 80001ea:	4b03      	ldr	r3, [pc, #12]	; (80001f8 <frame_dummy+0x10>)
+ 80001ec:	b11b      	cbz	r3, 80001f6 <frame_dummy+0xe>
+ 80001ee:	4903      	ldr	r1, [pc, #12]	; (80001fc <frame_dummy+0x14>)
+ 80001f0:	4803      	ldr	r0, [pc, #12]	; (8000200 <frame_dummy+0x18>)
+ 80001f2:	f3af 8000 	nop.w
+ 80001f6:	bd08      	pop	{r3, pc}
+ 80001f8:	00000000 	.word	0x00000000
+ 80001fc:	20000080 	.word	0x20000080
+ 8000200:	08000d88 	.word	0x08000d88
+
+08000204 <num_to_ascii>:
+
+#convert a binary number to ascii
+#r1: input  = binary number to convert
+#r0: output = ascii value
+num_to_ascii:
+	push {r1, lr}
+ 8000204:	b502      	push	{r1, lr}
+	bl   num_to_bcd
+ 8000206:	f000 f804 	bl	8000212 <num_to_bcd>
+	mov  r1, r0
+ 800020a:	4601      	mov	r1, r0
+	bl   bcd_to_ascii
+ 800020c:	f000 f849 	bl	80002a2 <bcd_to_ascii>
+	pop  {r1, pc}
+ 8000210:	bd02      	pop	{r1, pc}
+
+08000212 <num_to_bcd>:
+#Convert number to BCD
+#r1: input  = 28-bit binary number to convert
+#r0: output = BCD Value
+num_to_bcd:
+#Double Dabble
+	push {r1, r11, r12, lr}
+ 8000212:	e92d 5802 	stmdb	sp!, {r1, fp, ip, lr}
+    mov r0, #0
+ 8000216:	f04f 0000 	mov.w	r0, #0
+    lsl r1, #4
+ 800021a:	ea4f 1101 	mov.w	r1, r1, lsl #4
+    mov r11, #28    //bit counter
+ 800021e:	f04f 0b1c 	mov.w	fp, #28
+1:
+    #Once complete exit
+    cmp r11, #0
+ 8000222:	f1bb 0f00 	cmp.w	fp, #0
+    beq 2f
+ 8000226:	d03a      	beq.n	800029e <num_to_bcd+0x8c>
+
+    #check if each nibble is greater than 4, if it is add 3
+    ubfx r12, r0, #0, #4 //seventh nibble
+ 8000228:	f3c0 0c03 	ubfx	ip, r0, #0, #4
+    cmp r12, #4
+ 800022c:	f1bc 0f04 	cmp.w	ip, #4
+    IT gt
+ 8000230:	bfc8      	it	gt
+    addgt r0, r0, #0x3
+ 8000232:	3003      	addgt	r0, #3
+    
+    ubfx r12, r0, #4, #4 //sixth nibble
+ 8000234:	f3c0 1c03 	ubfx	ip, r0, #4, #4
+    cmp r12, #4
+ 8000238:	f1bc 0f04 	cmp.w	ip, #4
+    IT gt
+ 800023c:	bfc8      	it	gt
+    addgt r0, r0, #0x30
+ 800023e:	3030      	addgt	r0, #48	; 0x30
+
+    ubfx r12, r0, #8, #4 //fifth nibble
+ 8000240:	f3c0 2c03 	ubfx	ip, r0, #8, #4
+    cmp r12, #4
+ 8000244:	f1bc 0f04 	cmp.w	ip, #4
+    IT gt
+ 8000248:	bfc8      	it	gt
+    addgt r0, r0, #0x300
+ 800024a:	f500 7040 	addgt.w	r0, r0, #768	; 0x300
+
+    ubfx r12, r0, #12, #4 //fourth nibble
+ 800024e:	f3c0 3c03 	ubfx	ip, r0, #12, #4
+    cmp r12, #4
+ 8000252:	f1bc 0f04 	cmp.w	ip, #4
+    IT gt
+ 8000256:	bfc8      	it	gt
+    addgt r0, r0, #0x3000
+ 8000258:	f500 5040 	addgt.w	r0, r0, #12288	; 0x3000
+    
+    ubfx r12, r0, #16, #4 //third nibble
+ 800025c:	f3c0 4c03 	ubfx	ip, r0, #16, #4
+    cmp r12, #4
+ 8000260:	f1bc 0f04 	cmp.w	ip, #4
+    IT gt
+ 8000264:	bfc8      	it	gt
+    addgt r0, r0, #0x30000
+ 8000266:	f500 3040 	addgt.w	r0, r0, #196608	; 0x30000
+
+    ubfx r12, r0, #20, #4 //second nibble
+ 800026a:	f3c0 5c03 	ubfx	ip, r0, #20, #4
+    cmp r12, #4
+ 800026e:	f1bc 0f04 	cmp.w	ip, #4
+    IT gt
+ 8000272:	bfc8      	it	gt
+    addgt r0, r0, #0x300000
+ 8000274:	f500 1040 	addgt.w	r0, r0, #3145728	; 0x300000
+
+    ubfx r12, r0, #24, #4 //first nibble
+ 8000278:	f3c0 6c03 	ubfx	ip, r0, #24, #4
+    cmp r12, #4
+ 800027c:	f1bc 0f04 	cmp.w	ip, #4
+    IT gt
+ 8000280:	bfc8      	it	gt
+    addgt r0, r0, #0x3000000
+ 8000282:	f100 7040 	addgt.w	r0, r0, #50331648	; 0x3000000
+
+    #shift left and add the next bit
+    lsl r0, r0, #1
+ 8000286:	ea4f 0040 	mov.w	r0, r0, lsl #1
+    mov r12, #0
+ 800028a:	f04f 0c00 	mov.w	ip, #0
+    ubfx r12, r1, #31, #1
+ 800028e:	f3c1 7cc0 	ubfx	ip, r1, #31, #1
+    add r0, r0, r12
+ 8000292:	4460      	add	r0, ip
+    lsl r1, r1, #1
+ 8000294:	ea4f 0141 	mov.w	r1, r1, lsl #1
+    sub r11, #1
+ 8000298:	f1ab 0b01 	sub.w	fp, fp, #1
+    b 1b
+ 800029c:	e7c1      	b.n	8000222 <num_to_bcd+0x10>
+2:
+    pop {r1, r11, r12, pc}
+ 800029e:	e8bd 9802 	ldmia.w	sp!, {r1, fp, ip, pc}
+
+080002a2 <bcd_to_ascii>:
+
+#Convert the BCD to ASCII
+#r1: input  = BCD value to convert
+#r0: output = ascii value
+bcd_to_ascii:
+	push {r1, r12, lr}
+ 80002a2:	e92d 5002 	stmdb	sp!, {r1, ip, lr}
+
+	mov r0, #0x30303030
+ 80002a6:	f04f 3030 	mov.w	r0, #808464432	; 0x30303030
+    #Convert each nibble to ASCII
+	ubfx r12, r1, #12, #4
+ 80002aa:	f3c1 3c03 	ubfx	ip, r1, #12, #4
+	bfi  r0, r12, #24, #4
+ 80002ae:	f36c 601b 	bfi	r0, ip, #24, #4
+
+	ubfx r12, r1, #8, #4
+ 80002b2:	f3c1 2c03 	ubfx	ip, r1, #8, #4
+	bfi  r0, r12, #16, #4
+ 80002b6:	f36c 4013 	bfi	r0, ip, #16, #4
+
+	ubfx r12, r1, #4, #4
+ 80002ba:	f3c1 1c03 	ubfx	ip, r1, #4, #4
+	bfi  r0, r12, #8, #4
+ 80002be:	f36c 200b 	bfi	r0, ip, #8, #4
+
+	ubfx r12, r1, #0, #4
+ 80002c2:	f3c1 0c03 	ubfx	ip, r1, #0, #4
+	bfi  r0, r12, #0, #4
+ 80002c6:	f36c 0003 	bfi	r0, ip, #0, #4
+
+1:
+	pop  {r1, r12, pc}
+ 80002ca:	e8bd 9002 	ldmia.w	sp!, {r1, ip, pc}
+
+080002ce <convert_to_f>:
+#converts celsius to fahrenheit
+#celcius must be in tenths of a degree
+#r1: input  = celsius
+#r0: output = fahrenheit
+convert_to_f:
+	push {r1, r12, lr}
+ 80002ce:	e92d 5002 	stmdb	sp!, {r1, ip, lr}
+
+	mov r12, #9
+ 80002d2:	f04f 0c09 	mov.w	ip, #9
+	mul r1, r1, r12
+ 80002d6:	fb01 f10c 	mul.w	r1, r1, ip
+	mov r12, #5
+ 80002da:	f04f 0c05 	mov.w	ip, #5
+	udiv r1, r1, r12
+ 80002de:	fbb1 f1fc 	udiv	r1, r1, ip
+	add r1, r1, #320
+ 80002e2:	f501 71a0 	add.w	r1, r1, #320	; 0x140
+    mov r0, r1
+ 80002e6:	4608      	mov	r0, r1
+
+	pop  {r1, r12, pc}
+ 80002e8:	e8bd 9002 	ldmia.w	sp!, {r1, ip, pc}
+
+080002ec <convert_to_c>:
+
+#converts mV to celcius
+#r1: input  = mV reading
+#r0: output = celcius
+convert_to_c:
+	push {r1, r11, r12, lr}
+ 80002ec:	e92d 5802 	stmdb	sp!, {r1, fp, ip, lr}
+
+	mov r12, #3300
+ 80002f0:	f640 4ce4 	movw	ip, #3300	; 0xce4
+	mov r11, #4095
+ 80002f4:	f640 7bff 	movw	fp, #4095	; 0xfff
+	mul r12, r12, r1
+ 80002f8:	fb0c fc01 	mul.w	ip, ip, r1
+	udiv r12, r12, r11
+ 80002fc:	fbbc fcfb 	udiv	ip, ip, fp
+	mov r1, #250
+ 8000300:	f04f 01fa 	mov.w	r1, #250	; 0xfa
+	mov r11, #750
+ 8000304:	f240 2bee 	movw	fp, #750	; 0x2ee
+	sub r12, r12, r11
+ 8000308:	ebac 0c0b 	sub.w	ip, ip, fp
+	add r12, r12, r1
+ 800030c:	448c      	add	ip, r1
+    mov r0, r12
+ 800030e:	4660      	mov	r0, ip
+
+	pop  {r1, r11, r12, pc}
+ 8000310:	e8bd 9802 	ldmia.w	sp!, {r1, fp, ip, pc}
+
+08000314 <convert_to_temp>:
+
+#converts temperature sensor reading to the desired unit
+#r1: input = mV
+#r0: output = temperature in C/F
+convert_to_temp:
+	push {r11, r12, lr}
+ 8000314:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	ldr r12, =temp_mode
+ 8000318:	f8df c018 	ldr.w	ip, [pc, #24]	; 8000334 <convert_to_temp+0x20>
+	ldrb r11, [r12]
+ 800031c:	f89c b000 	ldrb.w	fp, [ip]
+
+	bl convert_to_c
+ 8000320:	f7ff ffe4 	bl	80002ec <convert_to_c>
+
+	cmp r11, #1
+ 8000324:	f1bb 0f01 	cmp.w	fp, #1
+	itt eq
+ 8000328:	bf04      	itt	eq
+	moveq r1, r0
+ 800032a:	4601      	moveq	r1, r0
+	bleq convert_to_f
+ 800032c:	f7ff ffcf 	bleq	80002ce <convert_to_f>
+
+	pop  {r11,r12, pc}
+ 8000330:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+	ldr r12, =temp_mode
+ 8000334:	2000004b 	.word	0x2000004b
+
+08000338 <lcd_setup>:
+#r11: internal = Temp 2
+#r12: internal = Temp 1
+
+#Code to initialize the LCD
+lcd_setup:
+	push {r1, r11, r12, lr}
+ 8000338:	e92d 5802 	stmdb	sp!, {r1, fp, ip, lr}
+	bl setup_ports
+ 800033c:	f000 f81c 	bl	8000378 <setup_ports>
+
+	ldr r1, =INITIALIZE_DELAY
+ 8000340:	f04f 0128 	mov.w	r1, #40	; 0x28
+	bl delay_ms
+ 8000344:	f000 fc1a 	bl	8000b7c <delay_ms>
+
+    #Write Function Set (0x38)
+    mov r1, #0x38
+ 8000348:	f04f 0138 	mov.w	r1, #56	; 0x38
+    bl write_instruction
+ 800034c:	f000 f8d5 	bl	80004fa <write_instruction>
+    mov r1, #0x38
+ 8000350:	f04f 0138 	mov.w	r1, #56	; 0x38
+    bl write_instruction
+ 8000354:	f000 f8d1 	bl	80004fa <write_instruction>
+
+    #Write Display On/Off(0x0F)
+    mov r1, #0x0F
+ 8000358:	f04f 010f 	mov.w	r1, #15
+    bl write_instruction
+ 800035c:	f000 f8cd 	bl	80004fa <write_instruction>
+    bl lcd_delay
+ 8000360:	f000 f88a 	bl	8000478 <lcd_delay>
+
+    #Write Display Clear (0x01)
+    bl lcd_clear
+ 8000364:	f000 f827 	bl	80003b6 <lcd_clear>
+    bl write_instruction
+ 8000368:	f000 f8c7 	bl	80004fa <write_instruction>
+
+    #Write Entry Mode Set (0x06)
+    mov r1, #0x06
+ 800036c:	f04f 0106 	mov.w	r1, #6
+    bl write_instruction
+ 8000370:	f000 f8c3 	bl	80004fa <write_instruction>
+
+	pop {r1, r11, r12, pc}
+ 8000374:	e8bd 9802 	ldmia.w	sp!, {r1, fp, ip, pc}
+
+08000378 <setup_ports>:
+
+setup_ports:
+	#Set up Ports
+    ldr r12, =RCC_BASE
+ 8000378:	f8df c214 	ldr.w	ip, [pc, #532]	; 8000590 <error+0x22>
+	ldr r11, [r12, #RCC_AHB1ENR]
+ 800037c:	f8dc b030 	ldr.w	fp, [ip, #48]	; 0x30
+	orr r11, r11, #RCC_GPIOAEN
+ 8000380:	f04b 0b01 	orr.w	fp, fp, #1
+	orr r11, r11, #RCC_GPIOCEN
+ 8000384:	f04b 0b04 	orr.w	fp, fp, #4
+	str r11, [r12, #RCC_AHB1ENR]
+ 8000388:	f8cc b030 	str.w	fp, [ip, #48]	; 0x30
+
+	#Turn GPIOA to output
+	ldr r12, =GPIOA_BASE
+ 800038c:	f8df c204 	ldr.w	ip, [pc, #516]	; 8000594 <error+0x26>
+	ldr r11, [r12, #GPIO_MODER]
+ 8000390:	f8dc b000 	ldr.w	fp, [ip]
+	ldr r10, =0x00555500
+ 8000394:	f8df a200 	ldr.w	sl, [pc, #512]	; 8000598 <error+0x2a>
+	orr r11, r11, r10
+ 8000398:	ea4b 0b0a 	orr.w	fp, fp, sl
+	str r11, [r12, #GPIO_MODER]
+ 800039c:	f8cc b000 	str.w	fp, [ip]
+
+	#Turn GPIOC to output
+	ldr r12, =GPIOC_BASE
+ 80003a0:	f8df c1f8 	ldr.w	ip, [pc, #504]	; 800059c <error+0x2e>
+	ldr r11, [r12, #GPIO_MODER]
+ 80003a4:	f8dc b000 	ldr.w	fp, [ip]
+	ldr r10, =0x00150000
+ 80003a8:	f44f 1aa8 	mov.w	sl, #1376256	; 0x150000
+	orr r11, r11, r10
+ 80003ac:	ea4b 0b0a 	orr.w	fp, fp, sl
+	str r11, [r12, #GPIO_MODER]
+ 80003b0:	f8cc b000 	str.w	fp, [ip]
+
+	bx lr
+ 80003b4:	4770      	bx	lr
+
+080003b6 <lcd_clear>:
+
+#Clear the LCD Display
+lcd_clear:
+    push {r1, lr}
+ 80003b6:	b502      	push	{r1, lr}
+    ldr r1, =0x1
+ 80003b8:	f04f 0101 	mov.w	r1, #1
+    bl write_instruction
+ 80003bc:	f000 f89d 	bl	80004fa <write_instruction>
+    bl lcd_delay
+ 80003c0:	f000 f85a 	bl	8000478 <lcd_delay>
+    pop {r1, pc}
+ 80003c4:	bd02      	pop	{r1, pc}
+
+080003c6 <lcd_home>:
+
+#Moves the curser back to home (Upper left hand corner)
+lcd_home:
+    push {r1, lr}
+ 80003c6:	b502      	push	{r1, lr}
+    mov r1, #0x02
+ 80003c8:	f04f 0102 	mov.w	r1, #2
+    bl write_instruction
+ 80003cc:	f000 f895 	bl	80004fa <write_instruction>
+    bl lcd_delay
+ 80003d0:	f000 f852 	bl	8000478 <lcd_delay>
+    pop {r1, pc}
+ 80003d4:	bd02      	pop	{r1, pc}
+
+080003d6 <lcd_print_num>:
+
+#Prints a decimal number to the display
+#Can only print 28-bit number
+#r1: input = binary number to print
+lcd_print_num:
+    push {r1, r12, lr}
+ 80003d6:	e92d 5002 	stmdb	sp!, {r1, ip, lr}
+	#check if the values are not within range
+	cmp r1, #0
+ 80003da:	2900      	cmp	r1, #0
+    bmi error
+ 80003dc:	f100 80c7 	bmi.w	800056e <error>
+    ldr r12, =MAX_VALUE
+ 80003e0:	f04f 5c80 	mov.w	ip, #268435456	; 0x10000000
+    cmp r1, r12
+ 80003e4:	4561      	cmp	r1, ip
+    bgt error
+ 80003e6:	f300 80c2 	bgt.w	800056e <error>
+	beq error
+ 80003ea:	f000 80c0 	beq.w	800056e <error>
+
+	bl num_to_ascii
+ 80003ee:	f7ff ff09 	bl	8000204 <num_to_ascii>
+	ubfx r1, r0, #24, #8
+ 80003f2:	f3c0 6107 	ubfx	r1, r0, #24, #8
+	cmp r1, #48
+ 80003f6:	2930      	cmp	r1, #48	; 0x30
+	IT gt
+ 80003f8:	bfc8      	it	gt
+	blgt lcd_write_data
+ 80003fa:	f000 f89a 	blgt	8000532 <lcd_write_data>
+
+	ubfx r1, r0, #16, #8
+ 80003fe:	f3c0 4107 	ubfx	r1, r0, #16, #8
+	cmp r1, #48
+ 8000402:	2930      	cmp	r1, #48	; 0x30
+	IT gt
+ 8000404:	bfc8      	it	gt
+	blgt lcd_write_data
+ 8000406:	f000 f894 	blgt	8000532 <lcd_write_data>
+
+	ubfx r1, r0, #8, #8
+ 800040a:	f3c0 2107 	ubfx	r1, r0, #8, #8
+	cmp r1, #48
+ 800040e:	2930      	cmp	r1, #48	; 0x30
+	IT gt
+ 8000410:	bfc8      	it	gt
+	blgt lcd_write_data
+ 8000412:	f000 f88e 	blgt	8000532 <lcd_write_data>
+
+	ubfx r1, r0, #0, #8
+ 8000416:	f3c0 0107 	ubfx	r1, r0, #0, #8
+	bl lcd_write_data
+ 800041a:	f000 f88a 	bl	8000532 <lcd_write_data>
+
+	pop {r1, r12, pc}
+ 800041e:	e8bd 9002 	ldmia.w	sp!, {r1, ip, pc}
+
+08000422 <lcd_print_string>:
+
+#Prints a null terminated string to the display
+#r1: input  = address to the string
+#r0: output = number of characters written
+lcd_print_string:
+    push {r1, r11, r12, lr}
+ 8000422:	e92d 5802 	stmdb	sp!, {r1, fp, ip, lr}
+
+	mov r0, #0 // counter
+ 8000426:	f04f 0000 	mov.w	r0, #0
+	mov r12, r1 // base address
+ 800042a:	468c      	mov	ip, r1
+	mov r11, #0 // offset
+ 800042c:	f04f 0b00 	mov.w	fp, #0
+
+08000430 <next_byte>:
+
+next_byte:
+	ldrb r1, [r12, r11]
+ 8000430:	f81c 100b 	ldrb.w	r1, [ip, fp]
+
+    #exit if there's no more bytes
+	cmp r1, #0
+ 8000434:	2900      	cmp	r1, #0
+	beq 1f
+ 8000436:	d006      	beq.n	8000446 <next_byte+0x16>
+
+	bl lcd_write_data
+ 8000438:	f000 f87b 	bl	8000532 <lcd_write_data>
+	add r11, r11, #1
+ 800043c:	f10b 0b01 	add.w	fp, fp, #1
+	add r0, r0, #1
+ 8000440:	f100 0001 	add.w	r0, r0, #1
+	b next_byte
+ 8000444:	e7f4      	b.n	8000430 <next_byte>
+
+1:
+	pop  {r1, r11, r12, pc}
+ 8000446:	e8bd 9802 	ldmia.w	sp!, {r1, fp, ip, pc}
+
+0800044a <lcd_set_position>:
+
+#Moves Cursor to location
+#r1: input = row
+#r2: input = col
+lcd_set_position:
+	push {r1, r2, r12, lr}
+ 800044a:	e92d 5006 	stmdb	sp!, {r1, r2, ip, lr}
+
+	bl lcd_home
+ 800044e:	f7ff ffba 	bl	80003c6 <lcd_home>
+
+    #check if the cursor needs to move up/down
+	mov r12, r2
+ 8000452:	4694      	mov	ip, r2
+	cmp r1, #0
+ 8000454:	2900      	cmp	r1, #0
+	beq dont_change_line
+ 8000456:	d001      	beq.n	800045c <dont_change_line>
+
+	# second line starts at 41st digit.
+	add r12, r12, #40
+ 8000458:	f10c 0c28 	add.w	ip, ip, #40	; 0x28
+
+0800045c <dont_change_line>:
+
+dont_change_line:
+	cmp r12, #0
+ 800045c:	f1bc 0f00 	cmp.w	ip, #0
+	beq dont_move_cursor
+ 8000460:	d008      	beq.n	8000474 <dont_move_cursor>
+
+1:
+	mov r1, #0x14
+ 8000462:	f04f 0114 	mov.w	r1, #20
+ 	bl write_instruction
+ 8000466:	f000 f848 	bl	80004fa <write_instruction>
+
+	bl lcd_delay
+ 800046a:	f000 f805 	bl	8000478 <lcd_delay>
+
+	subs r12, r12, #1
+ 800046e:	f1bc 0c01 	subs.w	ip, ip, #1
+	bne 1b
+ 8000472:	d1f6      	bne.n	8000462 <dont_change_line+0x6>
+
+08000474 <dont_move_cursor>:
+
+dont_move_cursor:
+	pop {r1, r2, r12, pc}
+ 8000474:	e8bd 9006 	ldmia.w	sp!, {r1, r2, ip, pc}
+
+08000478 <lcd_delay>:
+
+
+#Delays the program until the busy flag is off
+lcd_delay:
+	push {r10-r12, lr}
+ 8000478:	e92d 5c00 	stmdb	sp!, {sl, fp, ip, lr}
+
+	#Set PA4-11 to input
+	ldr r12, =GPIOA_BASE
+ 800047c:	f8df c114 	ldr.w	ip, [pc, #276]	; 8000594 <error+0x26>
+	ldr r11, [r12, #GPIO_MODER]
+ 8000480:	f8dc b000 	ldr.w	fp, [ip]
+	mov r10, #0
+ 8000484:	f04f 0a00 	mov.w	sl, #0
+	bfi r11, r10, #8, #16
+ 8000488:	f36a 2b17 	bfi	fp, sl, #8, #16
+	str r11 , [r12, #GPIO_MODER]
+ 800048c:	f8cc b000 	str.w	fp, [ip]
+
+1: //check busy flag, (DB7/PA11) 0=off
+	
+	#Set RS=0,RW=1,E=1
+	ldr r12, =GPIOC_BASE
+ 8000490:	f8df c108 	ldr.w	ip, [pc, #264]	; 800059c <error+0x2e>
+	ldr r11, [r12, #GPIO_ODR]
+ 8000494:	f8dc b014 	ldr.w	fp, [ip, #20]
+	mov r10, #0b110
+ 8000498:	f04f 0a06 	mov.w	sl, #6
+	bfi r11, r10, #8, #3
+ 800049c:	f36a 2b0a 	bfi	fp, sl, #8, #3
+	str r11, [r12, #GPIO_ODR]
+ 80004a0:	f8cc b014 	str.w	fp, [ip, #20]
+
+	ldr r12, =GPIOA_BASE
+ 80004a4:	f8df c0ec 	ldr.w	ip, [pc, #236]	; 8000594 <error+0x26>
+	ldr r11, [r12, GPIO_IDR]
+ 80004a8:	f8dc b010 	ldr.w	fp, [ip, #16]
+	ubfx r10, r11, #11, #1
+ 80004ac:	f3cb 2ac0 	ubfx	sl, fp, #11, #1
+	cmp r10, #0
+ 80004b0:	f1ba 0f00 	cmp.w	sl, #0
+	beq 2f
+ 80004b4:	d00b      	beq.n	80004ce <lcd_delay+0x56>
+
+	#Set E= 0
+	ldr r12, =GPIOC_BASE
+ 80004b6:	f8df c0e4 	ldr.w	ip, [pc, #228]	; 800059c <error+0x2e>
+	ldr r11, [r12, #GPIO_ODR]
+ 80004ba:	f8dc b014 	ldr.w	fp, [ip, #20]
+	mov r10, #0
+ 80004be:	f04f 0a00 	mov.w	sl, #0
+	bfi r11, r10, #10, #1
+ 80004c2:	f36a 2b8a 	bfi	fp, sl, #10, #1
+	str r11, [r12, #GPIO_ODR]
+ 80004c6:	f8cc b014 	str.w	fp, [ip, #20]
+	bl 1b
+ 80004ca:	f7ff ffe1 	bl	8000490 <lcd_delay+0x18>
+
+2: //Busy Flag off
+	#Set E= 0
+	ldr r12, =GPIOC_BASE
+ 80004ce:	f8df c0cc 	ldr.w	ip, [pc, #204]	; 800059c <error+0x2e>
+	ldr r11, [r12, #GPIO_ODR]
+ 80004d2:	f8dc b014 	ldr.w	fp, [ip, #20]
+	mov r10, #0
+ 80004d6:	f04f 0a00 	mov.w	sl, #0
+	bfi r11, r10, #10, #1
+ 80004da:	f36a 2b8a 	bfi	fp, sl, #10, #1
+	str r11, [r12, #GPIO_ODR]
+ 80004de:	f8cc b014 	str.w	fp, [ip, #20]
+
+	#Turn GPIOA to output
+	ldr r12, =GPIOA_BASE
+ 80004e2:	f8df c0b0 	ldr.w	ip, [pc, #176]	; 8000594 <error+0x26>
+	ldr r11, [r12, #GPIO_MODER]
+ 80004e6:	f8dc b000 	ldr.w	fp, [ip]
+	ldr r10, =0x00555500
+ 80004ea:	f8df a0ac 	ldr.w	sl, [pc, #172]	; 8000598 <error+0x2a>
+	orr r11, r11, r10
+ 80004ee:	ea4b 0b0a 	orr.w	fp, fp, sl
+	str r11, [r12, #GPIO_MODER]
+ 80004f2:	f8cc b000 	str.w	fp, [ip]
+    pop {r10-r12, pc}
+ 80004f6:	e8bd 9c00 	ldmia.w	sp!, {sl, fp, ip, pc}
+
+080004fa <write_instruction>:
+
+#Writes instruction
+#r1: input = Instruction to write
+write_instruction:
+	push {r9-r12, lr}
+ 80004fa:	e92d 5e00 	stmdb	sp!, {r9, sl, fp, ip, lr}
+    ldr r12, =GPIOA_BASE
+ 80004fe:	f8df c094 	ldr.w	ip, [pc, #148]	; 8000594 <error+0x26>
+    ldr r11, =GPIOC_BASE
+ 8000502:	f8df b098 	ldr.w	fp, [pc, #152]	; 800059c <error+0x2e>
+
+	#Set RS=0,RW=0,E=1
+    mov r10, #0
+ 8000506:	f04f 0a00 	mov.w	sl, #0
+    bic r10, r10, #RS
+ 800050a:	f42a 7a80 	bic.w	sl, sl, #256	; 0x100
+	bic r10, r10, #RW
+ 800050e:	f42a 7a00 	bic.w	sl, sl, #512	; 0x200
+	orr r10, r10, #E
+ 8000512:	f44a 6a80 	orr.w	sl, sl, #1024	; 0x400
+    str r10, [r11, #GPIO_ODR]
+ 8000516:	f8cb a014 	str.w	sl, [fp, #20]
+
+	#Send R1 to data pins
+    bfi r9, r1, #4, #8
+ 800051a:	f361 190b 	bfi	r9, r1, #4, #8
+    str r9, [r12, #GPIO_ODR]
+ 800051e:	f8cc 9014 	str.w	r9, [ip, #20]
+
+	#Set E=0
+    bic r10, r10, #E
+ 8000522:	f42a 6a80 	bic.w	sl, sl, #1024	; 0x400
+	str r10, [r11, #GPIO_ODR]
+ 8000526:	f8cb a014 	str.w	sl, [fp, #20]
+    bl lcd_delay
+ 800052a:	f7ff ffa5 	bl	8000478 <lcd_delay>
+	pop {r9-r12, pc}
+ 800052e:	e8bd 9e00 	ldmia.w	sp!, {r9, sl, fp, ip, pc}
+
+08000532 <lcd_write_data>:
+
+#Writes data (ascii value) to the cursor location
+#r1: input = ascii byte to print
+lcd_write_data:
+    push {r9-r12, lr}
+ 8000532:	e92d 5e00 	stmdb	sp!, {r9, sl, fp, ip, lr}
+	ldr r12, =GPIOA_BASE
+ 8000536:	f8df c05c 	ldr.w	ip, [pc, #92]	; 8000594 <error+0x26>
+	ldr r11, =GPIOC_BASE
+ 800053a:	f8df b060 	ldr.w	fp, [pc, #96]	; 800059c <error+0x2e>
+
+	# set RW=0, RS=1 E=1
+	mov r10, #0
+ 800053e:	f04f 0a00 	mov.w	sl, #0
+	bic r10, r10, #RW
+ 8000542:	f42a 7a00 	bic.w	sl, sl, #512	; 0x200
+	orr r10, r10, #RS
+ 8000546:	f44a 7a80 	orr.w	sl, sl, #256	; 0x100
+	orr r10, r10, #E
+ 800054a:	f44a 6a80 	orr.w	sl, sl, #1024	; 0x400
+	str r10, [r11, #GPIO_ODR]
+ 800054e:	f8cb a014 	str.w	sl, [fp, #20]
+
+	# write data
+	ubfx r9, r1, #0, #8
+ 8000552:	f3c1 0907 	ubfx	r9, r1, #0, #8
+	lsl r9, r9, #4
+ 8000556:	ea4f 1909 	mov.w	r9, r9, lsl #4
+	str r9, [r12, #GPIO_ODR]
+ 800055a:	f8cc 9014 	str.w	r9, [ip, #20]
+
+	# set E=0
+	bic r10, r10, #E
+ 800055e:	f42a 6a80 	bic.w	sl, sl, #1024	; 0x400
+	str r10, [r11, #GPIO_ODR]
+ 8000562:	f8cb a014 	str.w	sl, [fp, #20]
+
+	bl lcd_delay
+ 8000566:	f7ff ff87 	bl	8000478 <lcd_delay>
+
+	pop  {r9-r12, pc}
+ 800056a:	e8bd 9e00 	ldmia.w	sp!, {r9, sl, fp, ip, pc}
+
+0800056e <error>:
+
+#Error message
+error:
+    mov r1, 'E'
+ 800056e:	f04f 0145 	mov.w	r1, #69	; 0x45
+	bl lcd_write_data
+ 8000572:	f7ff ffde 	bl	8000532 <lcd_write_data>
+
+	mov r1, 'r'
+ 8000576:	f04f 0172 	mov.w	r1, #114	; 0x72
+	bl lcd_write_data
+ 800057a:	f7ff ffda 	bl	8000532 <lcd_write_data>
+
+	mov r1, 'r'
+ 800057e:	f04f 0172 	mov.w	r1, #114	; 0x72
+	bl lcd_write_data
+ 8000582:	f7ff ffd6 	bl	8000532 <lcd_write_data>
+
+	mov r0, #0
+ 8000586:	f04f 0000 	mov.w	r0, #0
+
+	pop {r1, r12, pc}
+ 800058a:	e8bd 9002 	ldmia.w	sp!, {r1, ip, pc}
+ 800058e:	0000      	.short	0x0000
+    ldr r12, =RCC_BASE
+ 8000590:	40023800 	.word	0x40023800
+	ldr r12, =GPIOA_BASE
+ 8000594:	40020000 	.word	0x40020000
+	ldr r10, =0x00555500
+ 8000598:	00555500 	.word	0x00555500
+	ldr r12, =GPIOC_BASE
+ 800059c:	40020800 	.word	0x40020800
+
+080005a0 <main>:
+.global print_reading
+.global is_buffer_mode
+.global inc_buffer_pos
+
+main:
+	bl key_setup
+ 80005a0:	f000 f978 	bl	8000894 <key_setup>
+	bl lcd_setup
+ 80005a4:	f7ff fec8 	bl	8000338 <lcd_setup>
+	bl temp_setup
+ 80005a8:	f000 fa70 	bl	8000a8c <temp_setup>
+	bl adc_setup
+ 80005ac:	f000 f8f6 	bl	800079c <adc_setup>
+	bl timer_setup
+ 80005b0:	f000 fa8e 	bl	8000ad0 <timer_setup>
+	bl piezo_setup
+ 80005b4:	f000 fb39 	bl	8000c2a <piezo_setup>
+
+080005b8 <loop>:
+
+loop:
+	bl key_getchar
+ 80005b8:	f000 f9dd 	bl	8000976 <key_getchar>
+
+	cmp r0, 'D'
+ 80005bc:	2844      	cmp	r0, #68	; 0x44
+	beq set_temp_unit
+ 80005be:	d037      	beq.n	8000630 <set_temp_unit>
+
+	cmp r0, '#'
+ 80005c0:	2823      	cmp	r0, #35	; 0x23
+	beq set_interval
+ 80005c2:	d045      	beq.n	8000650 <set_interval>
+
+	cmp r0, 'B'
+ 80005c4:	2842      	cmp	r0, #66	; 0x42
+	beq set_buffer_size
+ 80005c6:	d065      	beq.n	8000694 <set_buffer_size>
+
+	cmp R0, '*'
+ 80005c8:	282a      	cmp	r0, #42	; 0x2a
+	beq toggle_buffer_mode
+ 80005ca:	d000      	beq.n	80005ce <toggle_buffer_mode>
+
+	b loop
+ 80005cc:	e7f4      	b.n	80005b8 <loop>
+
+080005ce <toggle_buffer_mode>:
+
+#Toggles buffer mode on/off
+toggle_buffer_mode:
+	bl disable_ADC_interrupt
+ 80005ce:	f000 f923 	bl	8000818 <disable_ADC_interrupt>
+	bl lcd_clear
+ 80005d2:	f7ff fef0 	bl	80003b6 <lcd_clear>
+	ldr r1, =buffer_mode_on_msg
+ 80005d6:	4968      	ldr	r1, [pc, #416]	; (8000778 <inc_buffer_pos+0x2a>)
+	bl lcd_print_string
+ 80005d8:	f7ff ff23 	bl	8000422 <lcd_print_string>
+
+	#move to next line
+	mov r1, #1
+ 80005dc:	f04f 0101 	mov.w	r1, #1
+	mov r2 ,#0
+ 80005e0:	f04f 0200 	mov.w	r2, #0
+	bl lcd_set_position
+ 80005e4:	f7ff ff31 	bl	800044a <lcd_set_position>
+
+	ldr r1, =buffer_mode_clear_msg
+ 80005e8:	4964      	ldr	r1, [pc, #400]	; (800077c <inc_buffer_pos+0x2e>)
+	bl lcd_print_string
+ 80005ea:	f7ff ff1a 	bl	8000422 <lcd_print_string>
+
+080005ee <buffer_loop>:
+
+#Loop until A has been pressed
+buffer_loop:
+
+	bl key_getchar
+ 80005ee:	f000 f9c2 	bl	8000976 <key_getchar>
+	cmp r0, 'A'
+ 80005f2:	2841      	cmp	r0, #65	; 0x41
+	bne buffer_loop
+ 80005f4:	d1fb      	bne.n	80005ee <buffer_loop>
+	beq clear_buffer
+ 80005f6:	d0ff      	beq.n	80005f8 <clear_buffer>
+
+080005f8 <clear_buffer>:
+
+#flash the buffer
+clear_buffer:
+	ldr r12, =buffer_size
+ 80005f8:	f8df c184 	ldr.w	ip, [pc, #388]	; 8000780 <inc_buffer_pos+0x32>
+	ldrb r11, [r12] //offset
+ 80005fc:	f89c b000 	ldrb.w	fp, [ip]
+	bl lcd_clear
+ 8000600:	f7ff fed9 	bl	80003b6 <lcd_clear>
+	bl lcd_home
+ 8000604:	f7ff fedf 	bl	80003c6 <lcd_home>
+
+1:	//print every temp. reading to the LCD
+	ldr r1, [r12, r11]
+ 8000608:	f85c 100b 	ldr.w	r1, [ip, fp]
+	bl convert_to_temp
+ 800060c:	f7ff fe82 	bl	8000314 <convert_to_temp>
+	bl lcd_home
+ 8000610:	f7ff fed9 	bl	80003c6 <lcd_home>
+	bl print_reading
+ 8000614:	f000 f85f 	bl	80006d6 <print_reading>
+
+	mov r1, #1
+ 8000618:	f04f 0101 	mov.w	r1, #1
+	bl delay_sec
+ 800061c:	f000 fadc 	bl	8000bd8 <delay_sec>
+
+	subs r11, r11, #1
+ 8000620:	f1bb 0b01 	subs.w	fp, fp, #1
+	bne 1b
+ 8000624:	d1f0      	bne.n	8000608 <clear_buffer+0x10>
+
+	bl lcd_clear
+ 8000626:	f7ff fec6 	bl	80003b6 <lcd_clear>
+	bl enable_ADC_interrupt
+ 800062a:	f000 f901 	bl	8000830 <enable_ADC_interrupt>
+
+	b loop
+ 800062e:	e7c3      	b.n	80005b8 <loop>
+
+08000630 <set_temp_unit>:
+
+#Sets the temperature measurement to C/F
+set_temp_unit:
+	ldr r12, =temp_mode
+ 8000630:	f8df c150 	ldr.w	ip, [pc, #336]	; 8000784 <inc_buffer_pos+0x36>
+	ldrb r11, [r12]
+ 8000634:	f89c b000 	ldrb.w	fp, [ip]
+
+	cmp r11, #0
+ 8000638:	f1bb 0f00 	cmp.w	fp, #0
+	beq 1f
+ 800063c:	d000      	beq.n	8000640 <set_temp_unit+0x10>
+	bne 2f
+ 800063e:	d102      	bne.n	8000646 <set_temp_unit+0x16>
+
+1:  //fahrenheit Mode
+	mov r11, #1
+ 8000640:	f04f 0b01 	mov.w	fp, #1
+	b write
+ 8000644:	e001      	b.n	800064a <write>
+
+2:  //Celcius Mode
+	mov r11, #0
+ 8000646:	f04f 0b00 	mov.w	fp, #0
+
+0800064a <write>:
+
+write:  //Save the unit of measure
+	strb r11, [r12]
+ 800064a:	f88c b000 	strb.w	fp, [ip]
+	b loop
+ 800064e:	e7b3      	b.n	80005b8 <loop>
+
+08000650 <set_interval>:
+
+#Sets the interval in seconds between samples (1 - 9 seconds)
+set_interval:
+	bl disable_ADC_interrupt
+ 8000650:	f000 f8e2 	bl	8000818 <disable_ADC_interrupt>
+	bl lcd_clear
+ 8000654:	f7ff feaf 	bl	80003b6 <lcd_clear>
+	ldr r1, =set_interval_msg1
+ 8000658:	494b      	ldr	r1, [pc, #300]	; (8000788 <inc_buffer_pos+0x3a>)
+	bl lcd_print_string
+ 800065a:	f7ff fee2 	bl	8000422 <lcd_print_string>
+
+	#move next line
+	mov r1, #1
+ 800065e:	f04f 0101 	mov.w	r1, #1
+	mov r2, #0
+ 8000662:	f04f 0200 	mov.w	r2, #0
+	bl lcd_set_position
+ 8000666:	f7ff fef0 	bl	800044a <lcd_set_position>
+
+	ldr r1, =set_interval_msg2
+ 800066a:	4948      	ldr	r1, [pc, #288]	; (800078c <inc_buffer_pos+0x3e>)
+	bl lcd_print_string
+ 800066c:	f7ff fed9 	bl	8000422 <lcd_print_string>
+
+	#get value from keypad and print it
+1:
+	bl key_getchar
+ 8000670:	f000 f981 	bl	8000976 <key_getchar>
+	cmp r0, #0x31
+ 8000674:	2831      	cmp	r0, #49	; 0x31
+	blt 1b
+ 8000676:	dbfb      	blt.n	8000670 <set_interval+0x20>
+	cmp r0, #0x39
+ 8000678:	2839      	cmp	r0, #57	; 0x39
+	bgt 1b
+ 800067a:	dcf9      	bgt.n	8000670 <set_interval+0x20>
+
+	mov r1, r0
+ 800067c:	4601      	mov	r1, r0
+	sub r1, r1, #0x30
+ 800067e:	f1a1 0130 	sub.w	r1, r1, #48	; 0x30
+	ubfx r1, r1, #0, #4
+ 8000682:	f3c1 0103 	ubfx	r1, r1, #0, #4
+	bl timer_temperature_set
+ 8000686:	f000 fa3f 	bl	8000b08 <timer_temperature_set>
+
+	bl lcd_clear
+ 800068a:	f7ff fe94 	bl	80003b6 <lcd_clear>
+	bl enable_ADC_interrupt
+ 800068e:	f000 f8cf 	bl	8000830 <enable_ADC_interrupt>
+
+	b loop
+ 8000692:	e791      	b.n	80005b8 <loop>
+
+08000694 <set_buffer_size>:
+
+#Sets the size of the buffer with keypad
+set_buffer_size:
+	bl disable_ADC_interrupt
+ 8000694:	f000 f8c0 	bl	8000818 <disable_ADC_interrupt>
+	bl lcd_clear
+ 8000698:	f7ff fe8d 	bl	80003b6 <lcd_clear>
+	ldr r1, =set_buffer_size_msg1
+ 800069c:	493c      	ldr	r1, [pc, #240]	; (8000790 <inc_buffer_pos+0x42>)
+	bl lcd_print_string
+ 800069e:	f7ff fec0 	bl	8000422 <lcd_print_string>
+
+1:
+	bl key_getchar
+ 80006a2:	f000 f968 	bl	8000976 <key_getchar>
+	cmp r0, #0x31
+ 80006a6:	2831      	cmp	r0, #49	; 0x31
+	blt 1b
+ 80006a8:	dbfb      	blt.n	80006a2 <set_buffer_size+0xe>
+	cmp r0, #0x39
+ 80006aa:	2839      	cmp	r0, #57	; 0x39
+	bgt 1b
+ 80006ac:	dcf9      	bgt.n	80006a2 <set_buffer_size+0xe>
+
+	mov r1, r0
+ 80006ae:	4601      	mov	r1, r0
+	sub r1, r1, #0x30
+ 80006b0:	f1a1 0130 	sub.w	r1, r1, #48	; 0x30
+	// update buffer size
+	ubfx r1, r1, #0, #4
+ 80006b4:	f3c1 0103 	ubfx	r1, r1, #0, #4
+	ldr r12, =buffer_size
+ 80006b8:	f8df c0c4 	ldr.w	ip, [pc, #196]	; 8000780 <inc_buffer_pos+0x32>
+	strb r1, [r12]
+ 80006bc:	f88c 1000 	strb.w	r1, [ip]
+
+	//clear the buffer
+	mov r11, #0
+ 80006c0:	f04f 0b00 	mov.w	fp, #0
+	ldr r12, =buffer_pos
+ 80006c4:	f8df c0cc 	ldr.w	ip, [pc, #204]	; 8000794 <inc_buffer_pos+0x46>
+	strb r11, [r12]
+ 80006c8:	f88c b000 	strb.w	fp, [ip]
+
+	bl lcd_clear
+ 80006cc:	f7ff fe73 	bl	80003b6 <lcd_clear>
+	bl enable_ADC_interrupt
+ 80006d0:	f000 f8ae 	bl	8000830 <enable_ADC_interrupt>
+
+	b loop
+ 80006d4:	e770      	b.n	80005b8 <loop>
+
+080006d6 <print_reading>:
+
+#r1 : input = binary time
+print_reading:
+	push {r1, r10-r12, lr}
+ 80006d6:	e92d 5c02 	stmdb	sp!, {r1, sl, fp, ip, lr}
+
+	bl num_to_bcd
+ 80006da:	f7ff fd9a 	bl	8000212 <num_to_bcd>
+
+	ubfx r12, r0, #8, #4  // tens
+ 80006de:	f3c0 2c03 	ubfx	ip, r0, #8, #4
+	ubfx r11, r0, #4, #4  // ones
+ 80006e2:	f3c0 1b03 	ubfx	fp, r0, #4, #4
+	ubfx r10, r0, #0, #4  // tenths
+ 80006e6:	f3c0 0a03 	ubfx	sl, r0, #0, #4
+
+	// convert to ascii
+	add r12, r12, #0x30
+ 80006ea:	f10c 0c30 	add.w	ip, ip, #48	; 0x30
+	add r11, r11, #0x30
+ 80006ee:	f10b 0b30 	add.w	fp, fp, #48	; 0x30
+	add r10, r10, #0x30
+ 80006f2:	f10a 0a30 	add.w	sl, sl, #48	; 0x30
+
+	mov r1, r12
+ 80006f6:	4661      	mov	r1, ip
+	bl lcd_write_data
+ 80006f8:	f7ff ff1b 	bl	8000532 <lcd_write_data>
+
+	mov r1, r11
+ 80006fc:	4659      	mov	r1, fp
+	bl lcd_write_data
+ 80006fe:	f7ff ff18 	bl	8000532 <lcd_write_data>
+
+	mov r1, '.'
+ 8000702:	f04f 012e 	mov.w	r1, #46	; 0x2e
+	bl lcd_write_data
+ 8000706:	f7ff ff14 	bl	8000532 <lcd_write_data>
+
+	mov r1, r10
+ 800070a:	4651      	mov	r1, sl
+	bl lcd_write_data
+ 800070c:	f7ff ff11 	bl	8000532 <lcd_write_data>
+
+	mov r1, '~'
+ 8000710:	f04f 017e 	mov.w	r1, #126	; 0x7e
+	bl lcd_write_data
+ 8000714:	f7ff ff0d 	bl	8000532 <lcd_write_data>
+
+	bl get_temp_unit
+ 8000718:	f000 f805 	bl	8000726 <get_temp_unit>
+	mov r1, r0
+ 800071c:	4601      	mov	r1, r0
+	bl lcd_write_data
+ 800071e:	f7ff ff08 	bl	8000532 <lcd_write_data>
+
+	pop  {r1, r10-r12, pc}
+ 8000722:	e8bd 9c02 	ldmia.w	sp!, {r1, sl, fp, ip, pc}
+
+08000726 <get_temp_unit>:
+
+#Gets the ASCII character for the temperature
+#r0: output = ASCII unit of measure
+get_temp_unit:
+	push {r12, lr}
+ 8000726:	e92d 5000 	stmdb	sp!, {ip, lr}
+
+	ldr r12, =temp_mode
+ 800072a:	f8df c058 	ldr.w	ip, [pc, #88]	; 8000784 <inc_buffer_pos+0x36>
+	ldrb r0, [r12]
+ 800072e:	f89c 0000 	ldrb.w	r0, [ip]
+
+	cmp r0, #0
+ 8000732:	2800      	cmp	r0, #0
+	ite eq
+ 8000734:	bf0c      	ite	eq
+	moveq r0, 'C'
+ 8000736:	2043      	moveq	r0, #67	; 0x43
+	movne r0, 'F'
+ 8000738:	2046      	movne	r0, #70	; 0x46
+
+	pop  {r12, pc}
+ 800073a:	e8bd 9000 	ldmia.w	sp!, {ip, pc}
+
+0800073e <is_buffer_mode>:
+
+#Returns if the buffer is on or not
+#r0: output = buffer mode
+is_buffer_mode:
+	push {r12, lr}
+ 800073e:	e92d 5000 	stmdb	sp!, {ip, lr}
+
+	ldr r12, =buffer_mode
+ 8000742:	f8df c054 	ldr.w	ip, [pc, #84]	; 8000798 <inc_buffer_pos+0x4a>
+	ldrb r0, [r12]
+ 8000746:	f89c 0000 	ldrb.w	r0, [ip]
+
+	pop  {r12, pc}
+ 800074a:	e8bd 9000 	ldmia.w	sp!, {ip, pc}
+
+0800074e <inc_buffer_pos>:
+#increments the buffer position in memory
+inc_buffer_pos:
+	push {r10-r12, lr}
+ 800074e:	e92d 5c00 	stmdb	sp!, {sl, fp, ip, lr}
+	#load the location of the buffer position
+	ldr r12, =buffer_pos
+ 8000752:	f8df c040 	ldr.w	ip, [pc, #64]	; 8000794 <inc_buffer_pos+0x46>
+	ldrb r11, [r12]
+ 8000756:	f89c b000 	ldrb.w	fp, [ip]
+
+	#load the size of the buffer
+	ldr r10, =buffer_size
+ 800075a:	f8df a024 	ldr.w	sl, [pc, #36]	; 8000780 <inc_buffer_pos+0x32>
+	ldrb r10, [r10]
+ 800075e:	f89a a000 	ldrb.w	sl, [sl]
+
+	#compare the current position of the buffer to the size
+	cmp r10, r11
+ 8000762:	45da      	cmp	sl, fp
+	ite eq
+ 8000764:	bf0c      	ite	eq
+	moveq r11, #0
+ 8000766:	f04f 0b00 	moveq.w	fp, #0
+	#move the buffer position if the buffer isnt filled
+	addne r11, r11, #1
+ 800076a:	f10b 0b01 	addne.w	fp, fp, #1
+
+	strb r11, [r12]
+ 800076e:	f88c b000 	strb.w	fp, [ip]
+
+	pop  {r10-r12, pc}
+ 8000772:	e8bd 9c00 	ldmia.w	sp!, {sl, fp, ip, pc}
+ 8000776:	0000      	.short	0x0000
+	ldr r1, =buffer_mode_on_msg
+ 8000778:	2000002b 	.word	0x2000002b
+	ldr r1, =buffer_mode_clear_msg
+ 800077c:	2000003a 	.word	0x2000003a
+	ldr r12, =buffer_size
+ 8000780:	2000004e 	.word	0x2000004e
+	ldr r12, =temp_mode
+ 8000784:	2000004b 	.word	0x2000004b
+	ldr r1, =set_interval_msg1
+ 8000788:	20000000 	.word	0x20000000
+	ldr r1, =set_interval_msg2
+ 800078c:	20000011 	.word	0x20000011
+	ldr r1, =set_buffer_size_msg1
+ 8000790:	2000001b 	.word	0x2000001b
+	ldr r12, =buffer_pos
+ 8000794:	2000004f 	.word	0x2000004f
+	ldr r12, =buffer_mode
+ 8000798:	2000004a 	.word	0x2000004a
+
+0800079c <adc_setup>:
+#r11: temp = temporary variable 2
+#r12: temp = temporary variable 1
+
+#Turns on the ADC
+adc_setup:
+    push {r10-r12, lr}
+ 800079c:	e92d 5c00 	stmdb	sp!, {sl, fp, ip, lr}
+
+    ldr r12, =RCC_BASE
+ 80007a0:	f8df c0e0 	ldr.w	ip, [pc, #224]	; 8000884 <exit+0x6>
+    #enable GPIO B
+    ldr r11, [r12, #RCC_AHB1ENR]
+ 80007a4:	f8dc b030 	ldr.w	fp, [ip, #48]	; 0x30
+    orr r11, r11, #GPIOB_EN
+ 80007a8:	f04b 0b02 	orr.w	fp, fp, #2
+    str r11, [r12, #RCC_AHB1ENR]
+ 80007ac:	f8cc b030 	str.w	fp, [ip, #48]	; 0x30
+
+    #enable ADC1 & turn on ADC1
+    ldr r11, [r12, #RCC_APB2ENR]
+ 80007b0:	f8dc b044 	ldr.w	fp, [ip, #68]	; 0x44
+    orr r11, r11, #ADC1_EN
+ 80007b4:	f44b 7b80 	orr.w	fp, fp, #256	; 0x100
+    str r11, [r12, #RCC_APB2ENR]
+ 80007b8:	f8cc b044 	str.w	fp, [ip, #68]	; 0x44
+    ldr r12, =ADC1_BASE
+ 80007bc:	f8df c0c8 	ldr.w	ip, [pc, #200]	; 8000888 <exit+0xa>
+    ldr r11, [r12, #ADC_CR2]
+ 80007c0:	f8dc b008 	ldr.w	fp, [ip, #8]
+    orr r11, r11, #(1<<0)
+ 80007c4:	f04b 0b01 	orr.w	fp, fp, #1
+    str r11, [r12, #ADC_CR2]
+ 80007c8:	f8cc b008 	str.w	fp, [ip, #8]
+
+    #watch channel 8
+    ldr r11, [r12, #ADC_SQR3]
+ 80007cc:	f8dc b034 	ldr.w	fp, [ip, #52]	; 0x34
+    mov r10, #8
+ 80007d0:	f04f 0a08 	mov.w	sl, #8
+    bfi r11, r10, #0, #5
+ 80007d4:	f36a 0b04 	bfi	fp, sl, #0, #5
+    str r11, [r12, #ADC_SQR3]
+ 80007d8:	f8cc b034 	str.w	fp, [ip, #52]	; 0x34
+
+    #enable interrupt
+    ldr r12, =NVIC_BASE
+ 80007dc:	f04f 2ce0 	mov.w	ip, #3758153728	; 0xe000e000
+    ldr r11, [r12, #NVIC_ISER0]
+ 80007e0:	f8dc b100 	ldr.w	fp, [ip, #256]	; 0x100
+    orr r11, r11, #(1<<18)
+ 80007e4:	f44b 2b80 	orr.w	fp, fp, #262144	; 0x40000
+    str r11, [r12, #NVIC_ISER0]
+ 80007e8:	f8cc b100 	str.w	fp, [ip, #256]	; 0x100
+
+    ldr r12,=ADC1_BASE
+ 80007ec:	f8df c098 	ldr.w	ip, [pc, #152]	; 8000888 <exit+0xa>
+    ldr r11, [r12, ADC_CR1]
+ 80007f0:	f8dc b004 	ldr.w	fp, [ip, #4]
+    orr r11, r11,#(1<<5) //enable EOC interupt.
+ 80007f4:	f04b 0b20 	orr.w	fp, fp, #32
+    str r11, [r12,ADC_CR1]
+ 80007f8:	f8cc b004 	str.w	fp, [ip, #4]
+
+    pop {r10-r12, pc}
+ 80007fc:	e8bd 9c00 	ldmia.w	sp!, {sl, fp, ip, pc}
+
+08000800 <start_convert>:
+
+#Start conversion of ADC Channels
+start_convert:
+    push {r11, r12, lr}
+ 8000800:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+    ldr r12, =ADC1_BASE
+ 8000804:	f8df c080 	ldr.w	ip, [pc, #128]	; 8000888 <exit+0xa>
+    ldr r11, [r12, #ADC_CR2]
+ 8000808:	f8dc b008 	ldr.w	fp, [ip, #8]
+    orr r11, r11, #(1<<30) //start bit
+ 800080c:	f04b 4b80 	orr.w	fp, fp, #1073741824	; 0x40000000
+    str r11, [r12, #ADC_CR2]
+ 8000810:	f8cc b008 	str.w	fp, [ip, #8]
+
+    pop  {r11, r12, pc}
+ 8000814:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000818 <disable_ADC_interrupt>:
+
+
+#Disables ADC1 interrupt (EOC)
+disable_ADC_interrupt:
+	push {r11, r12, lr}
+ 8000818:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	ldr r12, =ADC1_BASE
+ 800081c:	f8df c068 	ldr.w	ip, [pc, #104]	; 8000888 <exit+0xa>
+	ldr r11, [r12, ADC_CR1]
+ 8000820:	f8dc b004 	ldr.w	fp, [ip, #4]
+	bic r11, r11, #(1<<5)
+ 8000824:	f02b 0b20 	bic.w	fp, fp, #32
+	str r11, [r12, ADC_CR1]
+ 8000828:	f8cc b004 	str.w	fp, [ip, #4]
+
+	pop  {r11, r12, pc}
+ 800082c:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000830 <enable_ADC_interrupt>:
+
+#Enables ADC1 interrupt (EOC)
+enable_ADC_interrupt:
+	push {r11, r12, lr}
+ 8000830:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	ldr r12, =ADC1_BASE
+ 8000834:	f8df c050 	ldr.w	ip, [pc, #80]	; 8000888 <exit+0xa>
+	ldr r11, [r12, ADC_CR1]
+ 8000838:	f8dc b004 	ldr.w	fp, [ip, #4]
+	orr r11, r11, #(1<<5)
+ 800083c:	f04b 0b20 	orr.w	fp, fp, #32
+	str r11, [r12, ADC_CR1]
+ 8000840:	f8cc b004 	str.w	fp, [ip, #4]
+
+	pop  {r11, r12, pc}
+ 8000844:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000848 <ADC_HAND>:
+#r1: input = input for subroutines
+#r3: temp = temporary variable 2
+#r12: temp = temporary variable 1
+.thumb_func
+ADC_HAND:
+	push {lr}
+ 8000848:	b500      	push	{lr}
+
+	bl is_buffer_mode
+ 800084a:	f7ff ff78 	bl	800073e <is_buffer_mode>
+	cmp r0, #0
+ 800084e:	2800      	cmp	r0, #0
+	ldr r12, =ADC1_BASE
+ 8000850:	f8df c034 	ldr.w	ip, [pc, #52]	; 8000888 <exit+0xa>
+	ldr r1, [r12, #ADC_DR] //load data
+ 8000854:	f8dc 104c 	ldr.w	r1, [ip, #76]	; 0x4c
+	beq buffer_off
+ 8000858:	d000      	beq.n	800085c <buffer_off>
+	bne buffer_on
+ 800085a:	d107      	bne.n	800086c <buffer_on>
+
+0800085c <buffer_off>:
+
+buffer_off:  //Just print the value
+	bl convert_to_temp
+ 800085c:	f7ff fd5a 	bl	8000314 <convert_to_temp>
+	bl lcd_home
+ 8000860:	f7ff fdb1 	bl	80003c6 <lcd_home>
+	mov r1, r0
+ 8000864:	4601      	mov	r1, r0
+	bl print_reading
+ 8000866:	f7ff ff36 	bl	80006d6 <print_reading>
+	b  exit
+ 800086a:	e008      	b.n	800087e <exit>
+
+0800086c <buffer_on>:
+
+buffer_on: //Save to memory
+	ldr r12, =buffer_pos
+ 800086c:	f8df c01c 	ldr.w	ip, [pc, #28]	; 800088c <exit+0xe>
+	ldr r12, [r12] //location in buffer
+ 8000870:	f8dc c000 	ldr.w	ip, [ip]
+	ldr r3, =temperature_buffer //base address
+ 8000874:	4b06      	ldr	r3, [pc, #24]	; (8000890 <exit+0x12>)
+
+	str r1, [r3, r12]
+ 8000876:	f843 100c 	str.w	r1, [r3, ip]
+	bl inc_buffer_pos
+ 800087a:	f7ff ff68 	bl	800074e <inc_buffer_pos>
+
+0800087e <exit>:
+
+exit:
+    #turn off interrupt?
+	pop {lr}
+ 800087e:	f85d eb04 	ldr.w	lr, [sp], #4
+	bx lr
+ 8000882:	4770      	bx	lr
+    ldr r12, =RCC_BASE
+ 8000884:	40023800 	.word	0x40023800
+    ldr r12, =ADC1_BASE
+ 8000888:	40012000 	.word	0x40012000
+	ldr r12, =buffer_pos
+ 800088c:	2000004f 	.word	0x2000004f
+	ldr r3, =temperature_buffer //base address
+ 8000890:	20000050 	.word	0x20000050
+
+08000894 <key_setup>:
+#r12: internal = Temp 1
+
+#Code to initialize the keypad
+key_setup:
+	#Set up Ports
+	push {r10-r12, lr}
+ 8000894:	e92d 5c00 	stmdb	sp!, {sl, fp, ip, lr}
+    ldr r12, =RCC_BASE
+ 8000898:	f8df c1e4 	ldr.w	ip, [pc, #484]	; 8000a80 <key_scan_row+0x1c>
+	ldr r11, [r12, #RCC_AHB1ENR]
+ 800089c:	f8dc b030 	ldr.w	fp, [ip, #48]	; 0x30
+    orr r11, r11, #RCC_GPIOCEN
+ 80008a0:	f04b 0b04 	orr.w	fp, fp, #4
+	str r11, [r12, #RCC_AHB1ENR]
+ 80008a4:	f8cc b030 	str.w	fp, [ip, #48]	; 0x30
+
+	ldr r12, =GPIOC_BASE
+ 80008a8:	f8df c1d8 	ldr.w	ip, [pc, #472]	; 8000a84 <key_scan_row+0x20>
+	ldr r11, [r12, #GPIO_PUPDR]
+ 80008ac:	f8dc b00c 	ldr.w	fp, [ip, #12]
+	ldr r10, =GPIOC_PULLUP
+ 80008b0:	f245 5a55 	movw	sl, #21845	; 0x5555
+	orr r11, r11, r10
+ 80008b4:	ea4b 0b0a 	orr.w	fp, fp, sl
+	str r11, [r12, #GPIO_PUPDR]
+ 80008b8:	f8cc b00c 	str.w	fp, [ip, #12]
+	pop {r10-r12, pc}
+ 80008bc:	e8bd 9c00 	ldmia.w	sp!, {sl, fp, ip, pc}
+
+080008c0 <key_getkey_noblock>:
+
+#Returns the key that was pressed (does not wait until the button is not pressed)
+#r0:output = what key was pressed
+key_getkey_noblock:
+	push {r1-r3, r11-r12, lr}
+ 80008c0:	e92d 580e 	stmdb	sp!, {r1, r2, r3, fp, ip, lr}
+	
+	bl key_scan_col
+ 80008c4:	f000 f8c0 	bl	8000a48 <key_scan_col>
+	#Wait for the button to stabalize and then read
+	mov r1, #10 //10 us delay
+ 80008c8:	f04f 010a 	mov.w	r1, #10
+	bl delay_us
+ 80008cc:	f000 f96d 	bl	8000baa <delay_us>
+	ldr r12, =GPIOC_BASE
+ 80008d0:	f8df c1b0 	ldr.w	ip, [pc, #432]	; 8000a84 <key_scan_row+0x20>
+	ldr r11, [r12, #GPIO_IDR]
+ 80008d4:	f8dc b010 	ldr.w	fp, [ip, #16]
+	ubfx r2, r11, #0, #4
+ 80008d8:	f3cb 0203 	ubfx	r2, fp, #0, #4
+	eor r2, #0xFF
+ 80008dc:	f082 02ff 	eor.w	r2, r2, #255	; 0xff
+	ubfx r2, r2, #0, #4
+ 80008e0:	f3c2 0203 	ubfx	r2, r2, #0, #4
+
+	bl key_scan_row
+ 80008e4:	f000 f8be 	bl	8000a64 <key_scan_row>
+	#Wait for the button to stabalize and then read
+	mov r1, #10 //10 us delay
+ 80008e8:	f04f 010a 	mov.w	r1, #10
+	bl delay_us
+ 80008ec:	f000 f95d 	bl	8000baa <delay_us>
+	ldr r12, =GPIOC_BASE
+ 80008f0:	f8df c190 	ldr.w	ip, [pc, #400]	; 8000a84 <key_scan_row+0x20>
+	ldr r11, [r12, #GPIO_IDR]
+ 80008f4:	f8dc b010 	ldr.w	fp, [ip, #16]
+	ubfx r3, r11, #4, #4
+ 80008f8:	f3cb 1303 	ubfx	r3, fp, #4, #4
+	eor r3, #0xFF
+ 80008fc:	f083 03ff 	eor.w	r3, r3, #255	; 0xff
+	ubfx r3, r3, #0, #4
+ 8000900:	f3c3 0303 	ubfx	r3, r3, #0, #4
+
+	bfi r2, r3, #4, #4
+ 8000904:	f363 1207 	bfi	r2, r3, #4, #4
+	bl key_get
+ 8000908:	f000 f845 	bl	8000996 <key_get>
+	pop {r1-r3, r11-r12, pc}
+ 800090c:	e8bd 980e 	ldmia.w	sp!, {r1, r2, r3, fp, ip, pc}
+
+08000910 <key_getkey>:
+
+#Waits until the button is not pressed before returning
+#r0:output = what key was pressed
+key_getkey:
+	push {r1-r3, r10-r12, lr}
+ 8000910:	e92d 5c0e 	stmdb	sp!, {r1, r2, r3, sl, fp, ip, lr}
+
+	bl key_scan_col
+ 8000914:	f000 f898 	bl	8000a48 <key_scan_col>
+	#Wait for the button to stabalize and then read
+	mov r1, #1 //10 us delay
+ 8000918:	f04f 0101 	mov.w	r1, #1
+	bl delay_us
+ 800091c:	f000 f945 	bl	8000baa <delay_us>
+	ldr r12, =GPIOC_BASE
+ 8000920:	f8df c160 	ldr.w	ip, [pc, #352]	; 8000a84 <key_scan_row+0x20>
+	ldr r11, [r12, #GPIO_IDR]
+ 8000924:	f8dc b010 	ldr.w	fp, [ip, #16]
+	ubfx r2, r11, #0, #4
+ 8000928:	f3cb 0203 	ubfx	r2, fp, #0, #4
+	eor r2, #0xFF
+ 800092c:	f082 02ff 	eor.w	r2, r2, #255	; 0xff
+	ubfx r2, r2, #0, #4
+ 8000930:	f3c2 0203 	ubfx	r2, r2, #0, #4
+
+	bl key_scan_row
+ 8000934:	f000 f896 	bl	8000a64 <key_scan_row>
+	
+	#Wait for the button to stabalize and then read
+	mov r1, #10 //1 us delay
+ 8000938:	f04f 010a 	mov.w	r1, #10
+	bl delay_us
+ 800093c:	f000 f935 	bl	8000baa <delay_us>
+	ldr r12, =GPIOC_BASE
+ 8000940:	f8df c140 	ldr.w	ip, [pc, #320]	; 8000a84 <key_scan_row+0x20>
+	ldr r11, [r12, #GPIO_IDR]
+ 8000944:	f8dc b010 	ldr.w	fp, [ip, #16]
+	ubfx r3, r11, #4, #4
+ 8000948:	f3cb 1303 	ubfx	r3, fp, #4, #4
+	eor r3, #0xFF
+ 800094c:	f083 03ff 	eor.w	r3, r3, #255	; 0xff
+	ubfx r3, r3, #0, #4
+ 8000950:	f3c3 0303 	ubfx	r3, r3, #0, #4
+
+1: //loop until the button is not pressed
+	mov r1, #10 //10 us delay
+ 8000954:	f04f 010a 	mov.w	r1, #10
+	bl delay_us
+ 8000958:	f000 f927 	bl	8000baa <delay_us>
+	ldr r11, [r12, #GPIO_IDR]
+ 800095c:	f8dc b010 	ldr.w	fp, [ip, #16]
+	ubfx r10, r11, #4, #4
+ 8000960:	f3cb 1a03 	ubfx	sl, fp, #4, #4
+	cmp r10, #15
+ 8000964:	f1ba 0f0f 	cmp.w	sl, #15
+	bne 1b
+ 8000968:	d1f4      	bne.n	8000954 <key_getkey+0x44>
+
+	bfi r2, r3, #4, #4
+ 800096a:	f363 1207 	bfi	r2, r3, #4, #4
+	bl key_get
+ 800096e:	f000 f812 	bl	8000996 <key_get>
+	pop {r1-r3, r10-r12, pc}
+ 8000972:	e8bd 9c0e 	ldmia.w	sp!, {r1, r2, r3, sl, fp, ip, pc}
+
+08000976 <key_getchar>:
+
+#Same as key_getkey, but converts the key value to ASCII
+#r0:input/output = Comes in as a key value, exits as an ASCII value
+key_getchar:
+	push {r10, r12, lr}
+ 8000976:	e92d 5400 	stmdb	sp!, {sl, ip, lr}
+	bl key_getkey_noblock
+ 800097a:	f7ff ffa1 	bl	80008c0 <key_getkey_noblock>
+
+	ldr r12, =b01 //Load the memory location of the ASCII Map
+ 800097e:	f8df c108 	ldr.w	ip, [pc, #264]	; 8000a88 <key_scan_row+0x24>
+	cmp r0, #0
+ 8000982:	2800      	cmp	r0, #0
+	beq 1f
+ 8000984:	d005      	beq.n	8000992 <key_getchar+0x1c>
+	sub r0, r0, #1
+ 8000986:	f1a0 0001 	sub.w	r0, r0, #1
+	add r0, r0, r0
+ 800098a:	4400      	add	r0, r0
+	ldrh r10, [r12, r0]
+ 800098c:	f83c a000 	ldrh.w	sl, [ip, r0]
+	mov r0, r10
+ 8000990:	4650      	mov	r0, sl
+1:
+	pop {r10, r12, pc}
+ 8000992:	e8bd 9400 	ldmia.w	sp!, {sl, ip, pc}
+
+08000996 <key_get>:
+
+#Based on the row/col return the key
+#r2:input = 7-4 rows, 3-0 columns
+#r0:output = What button was pressed
+key_get:
+	push {r12, lr}
+ 8000996:	e92d 5000 	stmdb	sp!, {ip, lr}
+	mov r0, #0
+ 800099a:	f04f 0000 	mov.w	r0, #0
+	mov r12, r2
+ 800099e:	4694      	mov	ip, r2
+
+	#1
+	cmp r12, #0x11
+ 80009a0:	f1bc 0f11 	cmp.w	ip, #17
+	IT eq
+ 80009a4:	bf08      	it	eq
+	moveq r0, #1
+ 80009a6:	2001      	moveq	r0, #1
+	beq 1f
+ 80009a8:	d04a      	beq.n	8000a40 <key_get+0xaa>
+	
+	#2
+	cmp r12, #0x12
+ 80009aa:	f1bc 0f12 	cmp.w	ip, #18
+	IT eq
+ 80009ae:	bf08      	it	eq
+	moveq r0, #2
+ 80009b0:	2002      	moveq	r0, #2
+	beq 1f
+ 80009b2:	d045      	beq.n	8000a40 <key_get+0xaa>
+
+	#3
+	cmp r12, #0x14
+ 80009b4:	f1bc 0f14 	cmp.w	ip, #20
+	IT eq
+ 80009b8:	bf08      	it	eq
+	moveq r0, #3
+ 80009ba:	2003      	moveq	r0, #3
+	beq 1f
+ 80009bc:	d040      	beq.n	8000a40 <key_get+0xaa>
+
+	#10 (A)
+	cmp r12, #0x18
+ 80009be:	f1bc 0f18 	cmp.w	ip, #24
+	IT eq
+ 80009c2:	bf08      	it	eq
+	moveq r0, #10
+ 80009c4:	200a      	moveq	r0, #10
+	beq 1f
+ 80009c6:	d03b      	beq.n	8000a40 <key_get+0xaa>
+
+	#4
+	cmp r12, #0x21
+ 80009c8:	f1bc 0f21 	cmp.w	ip, #33	; 0x21
+	IT eq
+ 80009cc:	bf08      	it	eq
+	moveq r0, #4
+ 80009ce:	2004      	moveq	r0, #4
+	beq 1f
+ 80009d0:	d036      	beq.n	8000a40 <key_get+0xaa>
+	
+	#5
+	cmp r12, #0x22
+ 80009d2:	f1bc 0f22 	cmp.w	ip, #34	; 0x22
+	IT eq
+ 80009d6:	bf08      	it	eq
+	moveq r0, #5
+ 80009d8:	2005      	moveq	r0, #5
+	beq 1f
+ 80009da:	d031      	beq.n	8000a40 <key_get+0xaa>
+
+	#6
+	cmp r12, #0x24
+ 80009dc:	f1bc 0f24 	cmp.w	ip, #36	; 0x24
+	IT eq
+ 80009e0:	bf08      	it	eq
+	moveq r0, #6
+ 80009e2:	2006      	moveq	r0, #6
+	beq 1f
+ 80009e4:	d02c      	beq.n	8000a40 <key_get+0xaa>
+
+	#11 (B)
+	cmp r12, #0x28
+ 80009e6:	f1bc 0f28 	cmp.w	ip, #40	; 0x28
+	IT eq
+ 80009ea:	bf08      	it	eq
+	moveq r0, #11
+ 80009ec:	200b      	moveq	r0, #11
+	beq 1f
+ 80009ee:	d027      	beq.n	8000a40 <key_get+0xaa>
+
+	#7
+	cmp r12, #0x41
+ 80009f0:	f1bc 0f41 	cmp.w	ip, #65	; 0x41
+	IT eq
+ 80009f4:	bf08      	it	eq
+	moveq r0, #7
+ 80009f6:	2007      	moveq	r0, #7
+	beq 1f
+ 80009f8:	d022      	beq.n	8000a40 <key_get+0xaa>
+	
+	#8
+	cmp r12, #0x42
+ 80009fa:	f1bc 0f42 	cmp.w	ip, #66	; 0x42
+	IT eq
+ 80009fe:	bf08      	it	eq
+	moveq r0, #8
+ 8000a00:	2008      	moveq	r0, #8
+	beq 1f
+ 8000a02:	d01d      	beq.n	8000a40 <key_get+0xaa>
+
+	#9
+	cmp r12, #0x44
+ 8000a04:	f1bc 0f44 	cmp.w	ip, #68	; 0x44
+	IT eq
+ 8000a08:	bf08      	it	eq
+	moveq r0, #9
+ 8000a0a:	2009      	moveq	r0, #9
+	beq 1f
+ 8000a0c:	d018      	beq.n	8000a40 <key_get+0xaa>
+
+	#12 (C)
+	cmp r12, #0x48
+ 8000a0e:	f1bc 0f48 	cmp.w	ip, #72	; 0x48
+	IT eq
+ 8000a12:	bf08      	it	eq
+	moveq r0, #12
+ 8000a14:	200c      	moveq	r0, #12
+	beq 1f
+ 8000a16:	d013      	beq.n	8000a40 <key_get+0xaa>
+
+	#*
+	cmp r12, #0x81
+ 8000a18:	f1bc 0f81 	cmp.w	ip, #129	; 0x81
+	IT eq
+ 8000a1c:	bf08      	it	eq
+	moveq r0, #14
+ 8000a1e:	200e      	moveq	r0, #14
+	beq 1f
+ 8000a20:	d00e      	beq.n	8000a40 <key_get+0xaa>
+	
+	#0
+	cmp r12, #0x82
+ 8000a22:	f1bc 0f82 	cmp.w	ip, #130	; 0x82
+	beq 1f
+ 8000a26:	d00b      	beq.n	8000a40 <key_get+0xaa>
+
+	# #
+	cmp r12, #0x84
+ 8000a28:	f1bc 0f84 	cmp.w	ip, #132	; 0x84
+	IT eq
+ 8000a2c:	bf08      	it	eq
+	moveq r0, #15
+ 8000a2e:	200f      	moveq	r0, #15
+	beq 1f
+ 8000a30:	d006      	beq.n	8000a40 <key_get+0xaa>
+
+	#13 (D)
+	cmp r12, #0x88
+ 8000a32:	f1bc 0f88 	cmp.w	ip, #136	; 0x88
+	IT eq
+ 8000a36:	bf08      	it	eq
+	moveq r0, #13
+ 8000a38:	200d      	moveq	r0, #13
+	beq 1f
+ 8000a3a:	d001      	beq.n	8000a40 <key_get+0xaa>
+
+	#No button was pressed
+	pop {r12, pc}
+ 8000a3c:	e8bd 9000 	ldmia.w	sp!, {ip, pc}
+1:
+	add r0, r0, #1
+ 8000a40:	f100 0001 	add.w	r0, r0, #1
+	pop {r12, pc}
+ 8000a44:	e8bd 9000 	ldmia.w	sp!, {ip, pc}
+
+08000a48 <key_scan_col>:
+
+
+#Turn Rows to outputs, Columns to inputs
+key_scan_col:
+	push {r10-r12, lr}
+ 8000a48:	e92d 5c00 	stmdb	sp!, {sl, fp, ip, lr}
+	ldr r12, =GPIOC_BASE
+ 8000a4c:	f8df c034 	ldr.w	ip, [pc, #52]	; 8000a84 <key_scan_row+0x20>
+	ldr r11, [r12, #GPIO_MODER]
+ 8000a50:	f8dc b000 	ldr.w	fp, [ip]
+	mov r10, #0xAA00
+ 8000a54:	f44f 4a2a 	mov.w	sl, #43520	; 0xaa00
+	bfi r11, r10, #0, #16
+ 8000a58:	f36a 0b0f 	bfi	fp, sl, #0, #16
+	str r11, [r12, #GPIO_MODER]
+ 8000a5c:	f8cc b000 	str.w	fp, [ip]
+	pop {r10-r12, pc}
+ 8000a60:	e8bd 9c00 	ldmia.w	sp!, {sl, fp, ip, pc}
+
+08000a64 <key_scan_row>:
+
+#Turn Columns to outputs, Rows to inputs
+key_scan_row:
+	push {r10-r12, lr}
+ 8000a64:	e92d 5c00 	stmdb	sp!, {sl, fp, ip, lr}
+	ldr r12, =GPIOC_BASE
+ 8000a68:	f8df c018 	ldr.w	ip, [pc, #24]	; 8000a84 <key_scan_row+0x20>
+	ldr r11, [r12, #GPIO_MODER]
+ 8000a6c:	f8dc b000 	ldr.w	fp, [ip]
+	mov r10, #0x0055
+ 8000a70:	f04f 0a55 	mov.w	sl, #85	; 0x55
+	bfi r11, r10, #0, #16
+ 8000a74:	f36a 0b0f 	bfi	fp, sl, #0, #16
+	str r11, [r12, #GPIO_MODER]	
+ 8000a78:	f8cc b000 	str.w	fp, [ip]
+	pop {r10-r12, pc}
+ 8000a7c:	e8bd 9c00 	ldmia.w	sp!, {sl, fp, ip, pc}
+    ldr r12, =RCC_BASE
+ 8000a80:	40023800 	.word	0x40023800
+	ldr r12, =GPIOC_BASE
+ 8000a84:	40020800 	.word	0x40020800
+	ldr r12, =b01 //Load the memory location of the ASCII Map
+ 8000a88:	2000005a 	.word	0x2000005a
+
+08000a8c <temp_setup>:
+
+#r0: output = return value
+#r11: internal = Temp 2
+#r12: internal = Temp 1
+temp_setup:
+	push {r11, r12, lr}
+ 8000a8c:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	ldr r12, =RCC_BASE
+ 8000a90:	f8df c034 	ldr.w	ip, [pc, #52]	; 8000ac8 <get_temp+0x14>
+
+	#Enable GPIOB
+	ldr  r11, [r12, #RCC_AHB1ENR]
+ 8000a94:	f8dc b030 	ldr.w	fp, [ip, #48]	; 0x30
+	orr  r11, r11, #RCC_GPIOBEN
+ 8000a98:	f04b 0b02 	orr.w	fp, fp, #2
+	str  r11, [r12, #RCC_AHB1ENR]
+ 8000a9c:	f8cc b030 	str.w	fp, [ip, #48]	; 0x30
+
+	#Set GPIOB as analog
+	ldr r12, =GPIOB_BASE
+ 8000aa0:	f8df c028 	ldr.w	ip, [pc, #40]	; 8000acc <get_temp+0x18>
+	ldr r11, [r12, #GPIO_MODER]
+ 8000aa4:	f8dc b000 	ldr.w	fp, [ip]
+	orr r11, r11, #0b11 //analog
+ 8000aa8:	f04b 0b03 	orr.w	fp, fp, #3
+	str r11, [r12, #GPIO_MODER]
+ 8000aac:	f8cc b000 	str.w	fp, [ip]
+
+	pop  {r11, r12, pc}
+ 8000ab0:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000ab4 <get_temp>:
+
+#r0: Output : Temperature raw value
+get_temp:
+	push {r11, r12, lr}
+ 8000ab4:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	ldr r12, =GPIOB_BASE
+ 8000ab8:	f8df c010 	ldr.w	ip, [pc, #16]	; 8000acc <get_temp+0x18>
+	ldr r11, [r12, #GPIO_IDR]
+ 8000abc:	f8dc b010 	ldr.w	fp, [ip, #16]
+	ubfx r0, r11, #0, #1
+ 8000ac0:	f3cb 0000 	ubfx	r0, fp, #0, #1
+
+	pop  {r11, r12, pc}
+ 8000ac4:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+	ldr r12, =RCC_BASE
+ 8000ac8:	40023800 	.word	0x40023800
+	ldr r12, =GPIOB_BASE
+ 8000acc:	40020400 	.word	0x40020400
+
+08000ad0 <timer_setup>:
+#r11: internal = Temp 2
+#r12: internal = Temp 1
+
+#Turns on timers TIM3 & TIM2
+timer_setup:
+	push {r11, r12, lr}
+ 8000ad0:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	#enable clock to TIM3 & TIM2
+	ldr r12, =RCC_BASE 
+ 8000ad4:	f8df c1fc 	ldr.w	ip, [pc, #508]	; 8000cd4 <TIM2_Interrupt_Handler+0x1a>
+	ldr r11, [r12, RCC_APB1ENR]
+ 8000ad8:	f8dc b040 	ldr.w	fp, [ip, #64]	; 0x40
+	orr r11, r11, #0b11 // TIM3 & TIM2
+ 8000adc:	f04b 0b03 	orr.w	fp, fp, #3
+	str r11, [r12, RCC_APB1ENR] 
+ 8000ae0:	f8cc b040 	str.w	fp, [ip, #64]	; 0x40
+
+	ldr r12, =TIM2_BASE
+ 8000ae4:	f04f 4c80 	mov.w	ip, #1073741824	; 0x40000000
+	#set the value in ARR to 1 ms
+	ldr r11, =(16000000-1)
+ 8000ae8:	f8df b1ec 	ldr.w	fp, [pc, #492]	; 8000cd8 <TIM2_Interrupt_Handler+0x1e>
+	str r11, [r12, TIMx_ARR]
+ 8000aec:	f8cc b02c 	str.w	fp, [ip, #44]	; 0x2c
+
+	bl timer_temperature_start
+ 8000af0:	f000 f81c 	bl	8000b2c <timer_temperature_start>
+
+	ldr r12, =NVIC_BASE
+ 8000af4:	f04f 2ce0 	mov.w	ip, #3758153728	; 0xe000e000
+	#Enable the TIM2 interrupt in NVIC
+	ldr r11, [r12, NVIC_ISER0]
+ 8000af8:	f8dc b100 	ldr.w	fp, [ip, #256]	; 0x100
+	orr r11, r11, #(1<<28)
+ 8000afc:	f04b 5b80 	orr.w	fp, fp, #268435456	; 0x10000000
+	str r11, [r12, NVIC_ISER0]
+ 8000b00:	f8cc b100 	str.w	fp, [ip, #256]	; 0x100
+
+	
+	pop {r11, r12, pc}
+ 8000b04:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000b08 <timer_temperature_set>:
+
+#sets the interval between temperature readings
+#r1: input = num of seconds
+timer_temperature_set:
+	push {r11, r12, lr}
+ 8000b08:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	bl timer_temperature_stop
+ 8000b0c:	f000 f820 	bl	8000b50 <timer_temperature_stop>
+
+	ldr r12, =TIM2_BASE
+ 8000b10:	f04f 4c80 	mov.w	ip, #1073741824	; 0x40000000
+	ldr r11, =16000000 // 1 second
+ 8000b14:	f8df b1c4 	ldr.w	fp, [pc, #452]	; 8000cdc <TIM2_Interrupt_Handler+0x22>
+	mul r11, r11, r1
+ 8000b18:	fb0b fb01 	mul.w	fp, fp, r1
+	sub r11, r11, #1	//-1 because it takes 1 instruction to exit
+ 8000b1c:	f1ab 0b01 	sub.w	fp, fp, #1
+	str r11, [r12, TIMx_ARR]
+ 8000b20:	f8cc b02c 	str.w	fp, [ip, #44]	; 0x2c
+
+	bl timer_temperature_start
+ 8000b24:	f000 f802 	bl	8000b2c <timer_temperature_start>
+
+	pop  {r11, r12, pc}
+ 8000b28:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000b2c <timer_temperature_start>:
+
+#Start the temperature timer and enable update interrupt
+timer_temperature_start:
+	push {r11, r12, lr}
+ 8000b2c:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	ldr r12, =TIM2_BASE
+ 8000b30:	f04f 4c80 	mov.w	ip, #1073741824	; 0x40000000
+
+	//starts the timer.
+	ldr r11, [r12, TIMx_CR1]
+ 8000b34:	f8dc b000 	ldr.w	fp, [ip]
+	orr r11, r11, #1
+ 8000b38:	f04b 0b01 	orr.w	fp, fp, #1
+	str r11, [r12, TIMx_CR1]
+ 8000b3c:	f8cc b000 	str.w	fp, [ip]
+
+	//enable the interrupt.
+	ldr r11, [r12, TIMx_DIER]
+ 8000b40:	f8dc b00c 	ldr.w	fp, [ip, #12]
+	orr r11, r11, #1
+ 8000b44:	f04b 0b01 	orr.w	fp, fp, #1
+	str r11, [r12, TIMx_DIER]
+ 8000b48:	f8cc b00c 	str.w	fp, [ip, #12]
+
+	pop {r11, r12, pc}
+ 8000b4c:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000b50 <timer_temperature_stop>:
+
+#stops temperature timer
+timer_temperature_stop:
+	push {r11-r12, lr}
+ 8000b50:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	#stop timer
+	ldr r12, =TIM2_BASE
+ 8000b54:	f04f 4c80 	mov.w	ip, #1073741824	; 0x40000000
+	ldr r11, [r12, TIMx_CR1]
+ 8000b58:	f8dc b000 	ldr.w	fp, [ip]
+	and r11, r11, #0
+ 8000b5c:	f00b 0b00 	and.w	fp, fp, #0
+	str r11, [r12, TIMx_CR1]
+ 8000b60:	f8cc b000 	str.w	fp, [ip]
+
+	#disable the update interrupt
+	ldr r11, [r12, TIMx_DIER]
+ 8000b64:	f8dc b00c 	ldr.w	fp, [ip, #12]
+	and r11, r11, #0
+ 8000b68:	f00b 0b00 	and.w	fp, fp, #0
+	str r11, [r12, TIMx_DIER]
+ 8000b6c:	f8cc b00c 	str.w	fp, [ip, #12]
+
+	#reset timer
+	mov r11, #0
+ 8000b70:	f04f 0b00 	mov.w	fp, #0
+	str r11, [r12, TIMx_CNT]
+ 8000b74:	f8cc b024 	str.w	fp, [ip, #36]	; 0x24
+
+	pop {r11-r12, pc}
+ 8000b78:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000b7c <delay_ms>:
+
+#Use Systick to delay x ms
+#r1: input = num of ms
+delay_ms:
+    push {r11, r12, lr}
+ 8000b7c:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	bl reset_systick
+ 8000b80:	f000 f841 	bl	8000c06 <reset_systick>
+	# cause a delay by using the systick.
+	ldr r12, =SYSTICK_BASE
+ 8000b84:	f8df c158 	ldr.w	ip, [pc, #344]	; 8000ce0 <TIM2_Interrupt_Handler+0x26>
+	ldr r11, = 16000 //cyles per ms
+ 8000b88:	f44f 5b7a 	mov.w	fp, #16000	; 0x3e80
+	mul r11, r11, r1
+ 8000b8c:	fb0b fb01 	mul.w	fp, fp, r1
+	str r11, [r12, SYSTICK_LOAD]
+ 8000b90:	f8cc b004 	str.w	fp, [ip, #4]
+	#start the clock.
+	mov r11, SYSTICK_ENABLE
+ 8000b94:	f04f 0b05 	mov.w	fp, #5
+	str r11, [r12, SYSTICK_CTRL]
+ 8000b98:	f8cc b000 	str.w	fp, [ip]
+
+1:  //determine when is timeout.
+	ldr r11, [r12, SYSTICK_CTRL]
+ 8000b9c:	f8dc b000 	ldr.w	fp, [ip]
+	ands r11, r11, #1<<16
+ 8000ba0:	f41b 3b80 	ands.w	fp, fp, #65536	; 0x10000
+	beq 1b
+ 8000ba4:	d0fa      	beq.n	8000b9c <delay_ms+0x20>
+
+	pop {r11, r12, pc}
+ 8000ba6:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000baa <delay_us>:
+
+#Use Systick to delay x us
+#r1: input = num of us
+delay_us:
+    push {r11, r12, lr}
+ 8000baa:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	bl reset_systick
+ 8000bae:	f000 f82a 	bl	8000c06 <reset_systick>
+	#cause a delay by using the systick.
+	ldr r12, =SYSTICK_BASE
+ 8000bb2:	f8df c12c 	ldr.w	ip, [pc, #300]	; 8000ce0 <TIM2_Interrupt_Handler+0x26>
+	mov r11, #16 //cyles per us
+ 8000bb6:	f04f 0b10 	mov.w	fp, #16
+	mul r11, r11, r1
+ 8000bba:	fb0b fb01 	mul.w	fp, fp, r1
+	str r11, [r12, SYSTICK_LOAD]
+ 8000bbe:	f8cc b004 	str.w	fp, [ip, #4]
+	#start the clock.
+	mov r11, SYSTICK_ENABLE
+ 8000bc2:	f04f 0b05 	mov.w	fp, #5
+	str r11, [r12, SYSTICK_CTRL]
+ 8000bc6:	f8cc b000 	str.w	fp, [ip]
+
+1:  //determine when is timeout.
+	ldr r11, [r12, SYSTICK_CTRL]
+ 8000bca:	f8dc b000 	ldr.w	fp, [ip]
+	ands r11, r11, #1<<16
+ 8000bce:	f41b 3b80 	ands.w	fp, fp, #65536	; 0x10000
+	beq 1b
+ 8000bd2:	d0fa      	beq.n	8000bca <delay_us+0x20>
+
+	pop {r11, r12, pc}
+ 8000bd4:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000bd8 <delay_sec>:
+
+#Use Systick to delay x s
+#r1: input = num of s
+delay_sec:
+	push {r11, r12, lr}
+ 8000bd8:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	bl reset_systick
+ 8000bdc:	f000 f813 	bl	8000c06 <reset_systick>
+	# cause a delay by using the systick.
+	ldr r12, =SYSTICK_BASE
+ 8000be0:	f8df c0fc 	ldr.w	ip, [pc, #252]	; 8000ce0 <TIM2_Interrupt_Handler+0x26>
+	ldr r11, =16000000 //cycles per second
+ 8000be4:	f8df b0f4 	ldr.w	fp, [pc, #244]	; 8000cdc <TIM2_Interrupt_Handler+0x22>
+	mul r11, r11, r1
+ 8000be8:	fb0b fb01 	mul.w	fp, fp, r1
+	str r11, [r12, SYSTICK_LOAD]
+ 8000bec:	f8cc b004 	str.w	fp, [ip, #4]
+	#start the clock.
+	mov r11, SYSTICK_ENABLE
+ 8000bf0:	f04f 0b05 	mov.w	fp, #5
+	str r11, [r12, SYSTICK_CTRL]
+ 8000bf4:	f8cc b000 	str.w	fp, [ip]
+	
+1:	//determine when is timeout.
+	ldr r11, [r12, SYSTICK_CTRL]
+ 8000bf8:	f8dc b000 	ldr.w	fp, [ip]
+	ands r11, r11, #1<<16
+ 8000bfc:	f41b 3b80 	ands.w	fp, fp, #65536	; 0x10000
+	beq 1b
+ 8000c00:	d0fa      	beq.n	8000bf8 <delay_sec+0x20>
+
+	pop {r11, r12, pc}
+ 8000c02:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000c06 <reset_systick>:
+
+#Reset systick controller and load prior to using systick as a timer
+reset_systick:
+	push {r11, r12, lr}
+ 8000c06:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	# reset all bits.
+	ldr r12, =SYSTICK_BASE
+ 8000c0a:	f8df c0d4 	ldr.w	ip, [pc, #212]	; 8000ce0 <TIM2_Interrupt_Handler+0x26>
+	#Reset Systick controller
+	ldr r11, [r12, SYSTICK_CTRL]
+ 8000c0e:	f8dc b000 	ldr.w	fp, [ip]
+	and r11, r11, #0
+ 8000c12:	f00b 0b00 	and.w	fp, fp, #0
+	str r11, [r12, SYSTICK_CTRL]
+ 8000c16:	f8cc b000 	str.w	fp, [ip]
+	#Reset Systick Load
+	ldr r11, [r12, SYSTICK_LOAD]
+ 8000c1a:	f8dc b004 	ldr.w	fp, [ip, #4]
+	and r11, r11, #0
+ 8000c1e:	f00b 0b00 	and.w	fp, fp, #0
+	str r11, [r12, SYSTICK_LOAD]
+ 8000c22:	f8cc b004 	str.w	fp, [ip, #4]
+
+	pop {r11, r12, pc}
+ 8000c26:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000c2a <piezo_setup>:
+
+#Sends the TIM3 square wave to the buzzer
+piezo_setup:
+    push {r11, r12, lr}
+ 8000c2a:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+    #enable clock to GPIOB
+    ldr r12, =RCC_BASE
+ 8000c2e:	f8df c0a4 	ldr.w	ip, [pc, #164]	; 8000cd4 <TIM2_Interrupt_Handler+0x1a>
+	ldr r11, [r12, RCC_AHB1ENR] 
+ 8000c32:	f8dc b030 	ldr.w	fp, [ip, #48]	; 0x30
+	orr r11, r11, #0b10 // GPIOB is bit 1
+ 8000c36:	f04b 0b02 	orr.w	fp, fp, #2
+	str r11, [r12, RCC_AHB1ENR] 
+ 8000c3a:	f8cc b030 	str.w	fp, [ip, #48]	; 0x30
+
+    # Set AF to 2
+	ldr r12, =GPIOB_BASE 
+ 8000c3e:	f8df c0a4 	ldr.w	ip, [pc, #164]	; 8000ce4 <TIM2_Interrupt_Handler+0x2a>
+	ldr r11, [r12, GPIO_AFRL] 
+ 8000c42:	f8dc b020 	ldr.w	fp, [ip, #32]
+	bic r11, r11, #(0b1111<<16)
+ 8000c46:	f42b 2b70 	bic.w	fp, fp, #983040	; 0xf0000
+	orr r11, r11, #(0b0010<<16) // AF 2
+ 8000c4a:	f44b 3b00 	orr.w	fp, fp, #131072	; 0x20000
+	str r11, [r12, GPIO_AFRL] 
+ 8000c4e:	f8cc b020 	str.w	fp, [ip, #32]
+	# Set PB4 to Alternate mode
+	ldr r11, [r12, GPIO_MODER] 
+ 8000c52:	f8dc b000 	ldr.w	fp, [ip]
+	bic r11, r11, #(0b11<<8)
+ 8000c56:	f42b 7b40 	bic.w	fp, fp, #768	; 0x300
+	orr r11, r11, #(0b10<<8)
+ 8000c5a:	f44b 7b00 	orr.w	fp, fp, #512	; 0x200
+	str r11, [r12, GPIO_MODER]
+ 8000c5e:	f8cc b000 	str.w	fp, [ip]
+
+    pop {r11, r12, pc}
+ 8000c62:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000c66 <piezo_off>:
+
+#Disables Pizeo
+piezo_off:
+	push {r11, r12, lr}
+ 8000c66:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	#Disbale counter
+	ldr r12, =TIM3_BASE
+ 8000c6a:	f8df c07c 	ldr.w	ip, [pc, #124]	; 8000ce8 <TIM2_Interrupt_Handler+0x2e>
+	ldr r11, [r12, TIMx_CR1]
+ 8000c6e:	f8dc b000 	ldr.w	fp, [ip]
+	mov r11, #0
+ 8000c72:	f04f 0b00 	mov.w	fp, #0
+	str r11, [r12, TIMx_CR1]
+ 8000c76:	f8cc b000 	str.w	fp, [ip]
+
+	pop {r11, r12, pc}
+ 8000c7a:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000c7e <piezo_play>:
+
+#Plays a tone with the Piezo
+#r1:input = amount of ticks (clock/[r1*2]=hz)
+piezo_play:
+	push {r11, r12, lr}
+ 8000c7e:	e92d 5800 	stmdb	sp!, {fp, ip, lr}
+
+	ldr r12, =TIM3_BASE
+ 8000c82:	f8df c064 	ldr.w	ip, [pc, #100]	; 8000ce8 <TIM2_Interrupt_Handler+0x2e>
+
+	#Enable counter
+	ldr r11, [r12, TIMx_CR1]
+ 8000c86:	f8dc b000 	ldr.w	fp, [ip]
+	mov r11, #1
+ 8000c8a:	f04f 0b01 	mov.w	fp, #1
+	str r11, [r12, TIMx_CR1]
+ 8000c8e:	f8cc b000 	str.w	fp, [ip]
+
+	#set the reset count: period -1
+	add r11, r1, r1
+ 8000c92:	eb01 0b01 	add.w	fp, r1, r1
+	sub r11, r11, #1
+ 8000c96:	f1ab 0b01 	sub.w	fp, fp, #1
+	str r11, [r12,TIMx_ARR]
+ 8000c9a:	f8cc b02c 	str.w	fp, [ip, #44]	; 0x2c
+
+	#Set position of toggle
+	mov r11, #0
+ 8000c9e:	f04f 0b00 	mov.w	fp, #0
+	str r11, [r12,TIMx_CCR1]
+ 8000ca2:	f8cc b034 	str.w	fp, [ip, #52]	; 0x34
+
+	#Set output mode to toggle
+	mov r11, #0b011<<4 // OC1M = 011 - PWM Mode 1
+ 8000ca6:	f04f 0b30 	mov.w	fp, #48	; 0x30
+	str r11, [r12,TIMx_CCMR1]
+ 8000caa:	f8cc b018 	str.w	fp, [ip, #24]
+
+	# compare output enable 
+	movw r11, #1 //CC2E =1
+ 8000cae:	f240 0b01 	movw	fp, #1
+	str r11, [r12,TIMx_CCER]
+ 8000cb2:	f8cc b020 	str.w	fp, [ip, #32]
+	
+	pop {r11, r12, pc}
+ 8000cb6:	e8bd 9800 	ldmia.w	sp!, {fp, ip, pc}
+
+08000cba <TIM2_Interrupt_Handler>:
+#Interupt is triggered when TIM2 (interval between temp readings) is 0
+#r3: temp = temporary variable 2
+#r12: temp = temporary variable 1
+.thumb_func
+TIM2_Interrupt_Handler:
+	push {lr}
+ 8000cba:	b500      	push	{lr}
+
+	bl start_convert
+ 8000cbc:	f7ff fda0 	bl	8000800 <start_convert>
+
+	#clear the interupt flag.
+	ldr r12, =TIM2_BASE
+ 8000cc0:	f04f 4c80 	mov.w	ip, #1073741824	; 0x40000000
+	ldr r3, [R0, TIMx_SR]
+ 8000cc4:	6903      	ldr	r3, [r0, #16]
+	bic r3, r3, #1
+ 8000cc6:	f023 0301 	bic.w	r3, r3, #1
+	str r3, [r12, TIMx_SR]
+ 8000cca:	f8cc 3010 	str.w	r3, [ip, #16]
+
+	pop {lr}
+ 8000cce:	f85d eb04 	ldr.w	lr, [sp], #4
+	bx lr		
+ 8000cd2:	4770      	bx	lr
+	ldr r12, =RCC_BASE 
+ 8000cd4:	40023800 	.word	0x40023800
+	ldr r11, =(16000000-1)
+ 8000cd8:	00f423ff 	.word	0x00f423ff
+	ldr r11, =16000000 // 1 second
+ 8000cdc:	00f42400 	.word	0x00f42400
+	ldr r12, =SYSTICK_BASE
+ 8000ce0:	e000e010 	.word	0xe000e010
+	ldr r12, =GPIOB_BASE 
+ 8000ce4:	40020400 	.word	0x40020400
+	ldr r12, =TIM3_BASE
+ 8000ce8:	40000400 	.word	0x40000400
+
+08000cec <Reset_Handler>:
+
+  .section .text.Reset_Handler
+  .weak Reset_Handler
+  .type Reset_Handler, %function
+Reset_Handler:
+  ldr   r0, =_estack
+ 8000cec:	480d      	ldr	r0, [pc, #52]	; (8000d24 <LoopForever+0x2>)
+  mov   sp, r0          /* set stack pointer */
+ 8000cee:	4685      	mov	sp, r0
+
+/* Copy the data segment initializers from flash to SRAM */
+
+  ldr r0, =_sdata
+ 8000cf0:	480d      	ldr	r0, [pc, #52]	; (8000d28 <LoopForever+0x6>)
+  ldr r1, =_edata
+ 8000cf2:	490e      	ldr	r1, [pc, #56]	; (8000d2c <LoopForever+0xa>)
+  ldr r2, =_sidata
+ 8000cf4:	4a0e      	ldr	r2, [pc, #56]	; (8000d30 <LoopForever+0xe>)
+  movs r3, #0
+ 8000cf6:	2300      	movs	r3, #0
+  b LoopCopyDataInit
+ 8000cf8:	e002      	b.n	8000d00 <LoopCopyDataInit>
+
+08000cfa <CopyDataInit>:
+
+CopyDataInit:
+
+
+  ldr r4, [r2, r3]
+ 8000cfa:	58d4      	ldr	r4, [r2, r3]
+  str r4, [r0, r3]
+ 8000cfc:	50c4      	str	r4, [r0, r3]
+  adds r3, r3, #4
+ 8000cfe:	3304      	adds	r3, #4
+
+08000d00 <LoopCopyDataInit>:
+
+LoopCopyDataInit:
+
+
+  adds r4, r0, r3
+ 8000d00:	18c4      	adds	r4, r0, r3
+  cmp r4, r1
+ 8000d02:	428c      	cmp	r4, r1
+
+
+
+  bcc CopyDataInit
+ 8000d04:	d3f9      	bcc.n	8000cfa <CopyDataInit>
+  
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+ 8000d06:	4a0b      	ldr	r2, [pc, #44]	; (8000d34 <LoopForever+0x12>)
+  ldr r4, =_ebss
+ 8000d08:	4c0b      	ldr	r4, [pc, #44]	; (8000d38 <LoopForever+0x16>)
+  movs r3, #0
+ 8000d0a:	2300      	movs	r3, #0
+  b LoopFillZerobss
+ 8000d0c:	e001      	b.n	8000d12 <LoopFillZerobss>
+
+08000d0e <FillZerobss>:
+
+FillZerobss:
+
+  str  r3, [r2]
+ 8000d0e:	6013      	str	r3, [r2, #0]
+  adds r2, r2, #4
+ 8000d10:	3204      	adds	r2, #4
+
+08000d12 <LoopFillZerobss>:
+
+LoopFillZerobss:
+
+  cmp r2, r4
+ 8000d12:	42a2      	cmp	r2, r4
+  bcc FillZerobss
+ 8000d14:	d3fb      	bcc.n	8000d0e <FillZerobss>
+
+/* Call the clock system intitialization function.*/
+  bl  SystemInit
+ 8000d16:	f3af 8000 	nop.w
+/* Call static constructors */
+  bl __libc_init_array
+ 8000d1a:	f000 f811 	bl	8000d40 <__libc_init_array>
+/* Call the application's entry point.*/
+  bl main
+ 8000d1e:	f7ff fc3f 	bl	80005a0 <main>
+
+08000d22 <LoopForever>:
+
+LoopForever:
+    b LoopForever
+ 8000d22:	e7fe      	b.n	8000d22 <LoopForever>
+  ldr   r0, =_estack
+ 8000d24:	20020000 	.word	0x20020000
+  ldr r0, =_sdata
+ 8000d28:	20000000 	.word	0x20000000
+  ldr r1, =_edata
+ 8000d2c:	2000007c 	.word	0x2000007c
+  ldr r2, =_sidata
+ 8000d30:	08000da8 	.word	0x08000da8
+  ldr r2, =_sbss
+ 8000d34:	2000007c 	.word	0x2000007c
+  ldr r4, =_ebss
+ 8000d38:	20000098 	.word	0x20000098
+
+08000d3c <BusFault_Handler>:
+ * @retval : None
+*/
+    .section .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b Infinite_Loop
+ 8000d3c:	e7fe      	b.n	8000d3c <BusFault_Handler>
+	...
+
+08000d40 <__libc_init_array>:
+ 8000d40:	b570      	push	{r4, r5, r6, lr}
+ 8000d42:	4e0d      	ldr	r6, [pc, #52]	; (8000d78 <__libc_init_array+0x38>)
+ 8000d44:	4c0d      	ldr	r4, [pc, #52]	; (8000d7c <__libc_init_array+0x3c>)
+ 8000d46:	1ba4      	subs	r4, r4, r6
+ 8000d48:	10a4      	asrs	r4, r4, #2
+ 8000d4a:	2500      	movs	r5, #0
+ 8000d4c:	42a5      	cmp	r5, r4
+ 8000d4e:	d109      	bne.n	8000d64 <__libc_init_array+0x24>
+ 8000d50:	4e0b      	ldr	r6, [pc, #44]	; (8000d80 <__libc_init_array+0x40>)
+ 8000d52:	4c0c      	ldr	r4, [pc, #48]	; (8000d84 <__libc_init_array+0x44>)
+ 8000d54:	f000 f818 	bl	8000d88 <_init>
+ 8000d58:	1ba4      	subs	r4, r4, r6
+ 8000d5a:	10a4      	asrs	r4, r4, #2
+ 8000d5c:	2500      	movs	r5, #0
+ 8000d5e:	42a5      	cmp	r5, r4
+ 8000d60:	d105      	bne.n	8000d6e <__libc_init_array+0x2e>
+ 8000d62:	bd70      	pop	{r4, r5, r6, pc}
+ 8000d64:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 8000d68:	4798      	blx	r3
+ 8000d6a:	3501      	adds	r5, #1
+ 8000d6c:	e7ee      	b.n	8000d4c <__libc_init_array+0xc>
+ 8000d6e:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 8000d72:	4798      	blx	r3
+ 8000d74:	3501      	adds	r5, #1
+ 8000d76:	e7f2      	b.n	8000d5e <__libc_init_array+0x1e>
+ 8000d78:	08000da0 	.word	0x08000da0
+ 8000d7c:	08000da0 	.word	0x08000da0
+ 8000d80:	08000da0 	.word	0x08000da0
+ 8000d84:	08000da4 	.word	0x08000da4
+
+08000d88 <_init>:
+ 8000d88:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000d8a:	bf00      	nop
+ 8000d8c:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000d8e:	bc08      	pop	{r3}
+ 8000d90:	469e      	mov	lr, r3
+ 8000d92:	4770      	bx	lr
+
+08000d94 <_fini>:
+ 8000d94:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000d96:	bf00      	nop
+ 8000d98:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000d9a:	bc08      	pop	{r3}
+ 8000d9c:	469e      	mov	lr, r3
+ 8000d9e:	4770      	bx	lr

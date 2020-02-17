@@ -1,0 +1,22 @@
+15:51:42 **** Build of configuration Debug for project LED Blink ****
+make all 
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -x assembler-with-cpp --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "startup/startup_stm32.o" "../startup/startup_stm32.s"
+arm-none-eabi-gcc "../startup/sysmem.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32 -DSTM32F4 -DSTM32F446RETx -DNUCLEO_F446RE -DDEBUG -c -O0 -ffunction-sections -Wall -fstack-usage -MMD -MP -MF"startup/sysmem.d" -MT"startup/sysmem.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "startup/sysmem.o"
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -x assembler-with-cpp --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "src/LED.o" "../src/LED.s"
+arm-none-eabi-gcc -o "LED Blink.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\School\Embedded 1\LED Blink\LinkerScript.ld" --specs=nosys.specs -Wl,-Map="LED Blink.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: LED Blink.elf
+ 
+arm-none-eabi-size   LED\ Blink.elf 
+   text	   data	    bss	    dec	    hex	filename
+    720	      8	   1056	   1784	    6f8	LED Blink.elf
+Finished building: default.size.stdout
+ 
+arm-none-eabi-objdump -h -S  LED\ Blink.elf  > "LED Blink.list"
+Finished building: LED Blink.list
+ 
+arm-none-eabi-objcopy  -O binary  LED\ Blink.elf  "LED Blink.bin"
+Finished building: LED Blink.bin
+ 
+
+15:51:47 Build Finished. 0 errors, 0 warnings. (took 4s.925ms)
+

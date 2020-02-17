@@ -1,0 +1,91 @@
+#VERIFY EVERYTHING
+.syntax unified
+.cpu cortex-m4
+.thumb
+.section .text
+
+.global pretty_print
+.global is_buffer_mode
+.global inc_buffer_pos
+
+
+#r0: output = return value
+#r11: internal = Temp 2
+#r12: internal = Temp 1
+
+#r1 : input = binary time
+pretty_print:
+	push {r1, r10-r12, Lr}
+
+	bl num_to_bcd
+
+	ubfx r12, r0, #8, #4  // tens
+	ubfx r11, r0, #4, #4  // ones
+	ubfx r10, r0, #0, #4  // mantissa
+
+	// convert to ascii
+	add r12, r12, #0x30
+	add r11, r11, #0x30
+	add r10, r10, #0x30
+
+	mov r1, r12
+	bl lcd_write_data
+
+	mov r1, r11
+	bl lcd_write_data
+
+	mov r1, '.'
+	bl lcd_write_data
+
+	mov r1, r10
+	bl lcd_write_data
+
+	mov r1, '~'
+	bl lcd_write_data
+
+	bl get_temp_abbr
+	bl lcd_write_data
+
+	pop  {r1, r10-r12, pc}
+
+#
+get_temp_abbr:
+	push {r12, Lr}
+
+	ldr r12, =temp_mode
+	ldrb r1, [r12]
+
+	cmp r1, #0
+	ite eq
+	moveq r1, 'C'
+	movne r1, 'F'
+
+	pop  {r12, lr}
+
+#
+is_buffer_mode:
+	push {lr}
+
+	ldr r1, =buffer_mode
+	ldrb r1, [r1]
+
+	pop  {pc}
+
+#
+inc_buffer_pos:
+	push {lr}
+
+	ldr r12, =buffer_pos
+	ldrb r11, [r12]
+
+	ldr r10, =buffer_size
+	ldrb r10, [r10]
+
+	cmp r10, r1
+	ite eq
+	moveq r11, #0
+	addne r11, r11, #1
+
+	strb r11, [r0]
+
+	pop  {PC}

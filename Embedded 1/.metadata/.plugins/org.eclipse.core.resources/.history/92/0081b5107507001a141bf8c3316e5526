@@ -1,0 +1,213 @@
+
+#Emit a short beep upon each collected sample
+
+#Main.s
+#Julian Singkham
+#CE 2801
+#Lab 8
+#Description: Read values from the temperature sensor, save to ram, and display them onto the LCD
+    #‘*’ – buffer on/off.  When in buffer mode, all samples are stored to RAM.  Upon turning buffer mode off, 
+    #   all currently buffered samples will be displayed and subsequent samples transmitted upon collection.
+#‘#’ – allows user to set the interval in seconds between samples (1 - 9 seconds)
+#'B'  - allows user to set the buffer size (number of samples maintained [01-99])
+#'D' - Toggles between displaying temperature in C or F
+#'A' - Display buffered results 
+    #'C' - Continuous mode (display results with as they are computed)
+
+.syntax unified
+.cpu cortex-m4
+.thumb
+.section .text
+
+	.equ ADC_CR2, 0x08
+	.equ ADC_SR, 0x00
+	.equ ADC_DR, 0x4C
+	.equ AHB1ENR_OFFSET, 0x30
+	.equ GPIOB_EN, 1<<1
+	.equ APB2ENR_OFFSET, 0x44
+	.equ ADC1_EN, 1<<8
+	.equ ADC_SQR3, 0x34
+	.equ RCC_BASE, 0x40023800
+	.equ ADC1_BASE, 0x40012000
+
+.global main
+.global convert_to_temp
+.global pretty_print
+
+main:
+	bl key_setup
+	bl lcd_setup
+	bl temp_setup
+	bl adc_setup
+	bl timer_setup
+
+loop:
+	bl key_getchar
+
+	cmp r0, 'D'
+	beq set_temp_unit
+
+	cmp r0, '#'
+	beq set_interval
+
+	cmp r0, 'B'
+	beq set_buffer_size
+
+    // TBD
+	cmp R0, '*'
+	beq toggle_buffer_mode
+
+	b loop
+
+#DID NOT LOOK AT
+toggle_buffer_mode:
+	bl disable_interrupt
+	bl lcd_clear
+	ldr R1, =buffer_mode_on_msg
+	bl lcd_print_string
+
+	mov R0, #1
+	mov R1, #0
+	bl lcd_set_position
+
+	ldr R1, =buffer_mode_flush_msg
+	bl lcd_print_string
+
+#DID NOT LOOK AT
+buffer_loop:
+
+	bl key_get_char
+	cmp R0, 'A'
+	bne buffer_loop
+	beq drain_buffer
+
+#DID NOT LOOK AT
+drain_buffer:
+	ldr R4, =buffer_size
+	ldrb R5, [R4] // offset
+
+1:
+	ldr R1, [R4, R5]
+	bl convert_to_temp
+	bl lcd_home
+	bl pretty_print
+
+	mov R1, #500
+	bl delay_ms
+
+	subs R5, R5, #1
+	bne 1b
+
+	bl lcd_clear
+	#bl enable_interrupt
+
+	b loop
+
+#Sets the temperature measurement to C/F
+set_temp_unit:
+	ldr r12, =temp_mode
+	ldrb r11, [r12]
+
+	cmp r11, #0
+	beq 1f
+	bne 2f
+
+1:  //fahrenheit Mode
+	mov r11, #1
+	b write
+
+2:  //Celcius Mode
+	mov r11, #0
+
+write:  //Save the unit of measure
+	strb r11, [r12]
+	b loop
+
+#Sets the interval in seconds between samples (1 - 9 seconds)
+#REVISIT
+set_interval:
+	bl disable_interrupt
+	bl lcd_clear
+	ldr r1, =set_interval_msg1
+	bl lcd_print_string
+
+	mov r1, #1
+	mov r2, #0
+	bl lcd_set_position
+
+	ldr r1, =set_interval_msg2
+	bl lcd_print_string
+
+
+	bl key_get_char
+
+	mov r1, r0
+	bl lcd_write_data
+
+    #DO THIS
+	ubfx r1, r1, #0, #4
+	bl set_tim2_delay
+
+	bl lcd_clear
+	bl enable_interrupt
+
+	b loop
+
+#REVISIT
+set_buffer_size:
+	bl disable_interrupt
+	bl lcd_clear
+	ldr r1, =set_buffer_size_msg1
+	bl lcd_print_string
+
+	bl key_get_char
+
+	mov r1, r0
+	bl lcd_write_data
+
+	// update buffer size
+	ubfx r1, r1, #0, #4
+	ldr r12, =buffer_size
+	strb r1, [r12]
+
+	// flush buffer
+	mov r11, #0
+	ldr r12, =buffer_pos
+	strb r11, [r12]
+
+	bl lcd_clear
+	bl enable_interrupt
+
+	b loop
+
+.section .data
+
+	.global temp_mode
+	.global buffer_mode
+	.global buffer_pos
+	.global buffer_size
+	.global temperature_buffer
+
+	// booleans
+	buffer_mode:     .byte 0 // 0->dont write to buffer | 1->write to buffer
+	temp_mode:       .byte 0 // 0->Celsius | 1->Fahrenheit
+	continuous_mode: .byte 0 // 1-> write values to lcd when calculated
+
+	// integers
+	interval:        .byte 1 // [1-9]
+	buffer_size:     .byte 10 // [1-9]
+	buffer_pos:      .byte 0 // [1-buffer_size]
+
+	.balign 4
+	temperature_buffer:
+		.space 10
+
+.section .rodata
+
+	set_interval_msg1:     .asciz "Set interval 1-9"
+	set_interval_msg2:     .asciz "Interval: "
+
+	set_buffer_size_msg1:  .asciz "Set Buffer Size"
+
+	buffer_mode_on_msg:    .asciz "Buffer Mode On"
+	buffer_mode_flush_msg: .asciz "Press A to exit"

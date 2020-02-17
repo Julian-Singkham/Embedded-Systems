@@ -1,0 +1,134 @@
+#missing extra shit
+.syntax unified
+.cpu cortex-m4
+.thumb
+.section .text
+
+    .equ RCC_BASE, 0x40023800	//base address for clock
+    .equ RCC_AHB1ENR, 0x30 		//Peripheral enable 1 (GPIOx)
+    .equ RCC_APB2ENR, 0x44      //Peripheral enable 2 (ADCx)
+
+    .equ ADC1_BASE, 0x40020800	//Address for the ADC1
+    .equ ADC_SR, 0x00   //status register
+    .equ ADC_Cr1, 0x04  //control register 1. Set mode and interupt
+    .equ ADC_Cr2, 0x08  //control register 2. Conversion, external stuff
+    .equ ADC_SQR3, 0x34 //regular sequence register 3. 6-1 conversion
+    .equ ADC_DR, 0x4C   //data register
+    
+    .equ GPIOB_EN, 0x2  //bit to enable GPIOB
+    .equ ADC1_EN, 1<<8  //bit to enable ADC1
+
+    .equ NVIC_BASE, 0xE000E000  //vector interupt controller
+    .equ NVIC_ISER0, 0x0        //vector map
+
+.global adc_init
+.global start_convert
+.global disable_interrupt
+.global enable_interrupt
+#
+adc_setup:
+    push {r10-r12, lr}
+
+    ldr r12, =RCC_BASE
+
+    #enable GPIO B
+    ldr r11, [r12, #RCC_AHB1ENR]
+    orr r11, r11, #GPIOB_EN
+    str r11, [r12, #RCC_AHB1ENR]
+
+    #enable ADC1 & turn on ADC1
+    ldr r11, [r12, #RCC_APB2ENR]
+    orr r11, r11, #ADC1_EN
+    str r11, [r12, #RCC_APB2ENR]
+    ldr r12, =ADC1_BASE
+    ldr r11, [r12, #ADC_Cr2]
+    orr r11, r11, #(1<<0)
+    str r11, [r12, #ADC_Cr2]
+
+    #watch channel 8
+    ldr r11, [r12, #ADC_SQR3]
+    mov r10, #8
+    bfi r11, r2, #0, #5
+    str r11, [r12, #ADC_SQR3]
+
+    // enable interrupt
+    ldr r12,=NVIC_BASE
+    ldr r11,[r12,ISEr12]
+    orr r11,r11,#(1<<18)
+    str r11,[r12,ISEr12]
+
+    ldr r11,=ADC1_BASE
+    ldr r2,[r11,ADC_Cr1]
+    orr r2,r2,#(1<<5) // Enable interrupt for EOC.
+    str r2,[r11,ADC_Cr1]
+
+    pop {r10-r12, pc}
+
+#Start conversion of ADC Channels
+start_convert:
+    push {r11, r12, LR}
+
+    ldr r12, =ADC1_BASE
+    ldr r11, [r12, #ADC_CR2]
+    orr r11, r11, #(1<<30) //start bit
+    str r11, [r12, #ADC_CR2]
+
+    pop  {r11, r12, PC}
+
+
+#NOT COMMENTED
+disable_interrupt:
+	push {r11, r12, lr}
+
+	ldr r12, =ADC1_BASE
+	ldr r11, [r12, ADC_CR1]
+	bic r11, r11, #(1<<5)
+	str r11, [r12, ADC_CR1]
+
+	pop  {r11, r12, pc}
+
+#NOT COMMENTED
+enable_interrupt:
+	push {r11, r12, lr}
+
+	ldr r12, =ADC1_BASE
+	ldr r11, [r12, ADC_CR1]
+	orr r11, r11, #(1<<5)
+	str r11, [r12, ADC_CR1]
+
+	pop  {r11, r12, pc}
+
+#NOT COMMENTED
+#For interupts, r3, r12 are the only internal variables
+#This is due to r0-r3, r12 being pushed to the stack
+.global ADC_Convert_Handler
+.thumb_func
+ADC_Convert_Handler:
+	push {lr}
+
+	bl is_buffer_mode
+	cmp r1, #0
+	ldr r12, =ADC1_BASE
+	ldr r1, [r12, #ADC_DR]
+	beq no_buffer
+	bne yes_buffer
+
+no_buffer:
+	bl convert_to_temp
+	bl lcd_home
+	bl pretty_print
+	b  leave
+
+yes_buffer:
+	// R1 num
+	ldr r12, =buffer_pos
+	ldr r12, [r12] // loc in buffer
+	ldr r3, =temperature_buffer // base address
+
+	str r1, [r3, r12]
+	bl inc_buffer_pos
+
+
+leave:
+	pop {pc}
+	bx LR

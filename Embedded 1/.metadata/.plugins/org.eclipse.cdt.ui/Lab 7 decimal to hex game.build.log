@@ -1,0 +1,18 @@
+22:30:53 **** Incremental Build of configuration Debug for project Lab 7 decimal to hex game ****
+make -j8 all 
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -x assembler-with-cpp --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/keypad.o" "../Src/keypad.s"
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -x assembler-with-cpp --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/timer.o" "../Src/timer.s"
+arm-none-eabi-gcc -o "Lab 7 decimal to hex game.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\School\Embedded 1\Lab 7 decimal to hex game\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Lab 7 decimal to hex game.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Lab 7 decimal to hex game.elf
+ 
+arm-none-eabi-objdump -h -S  Lab\ 7\ decimal\ to\ hex\ game.elf  > "Lab 7 decimal to hex game.list"
+arm-none-eabi-size   Lab\ 7\ decimal\ to\ hex\ game.elf 
+   text	   data	    bss	    dec	    hex	filename
+   3024	    144	   1568	   4736	   1280	Lab 7 decimal to hex game.elf
+Finished building: default.size.stdout
+Finished building: Lab 7 decimal to hex game.list
+ 
+ 
+
+22:30:55 Build Finished. 0 errors, 0 warnings. (took 2s.810ms)
+

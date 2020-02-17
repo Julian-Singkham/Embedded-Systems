@@ -1,0 +1,7 @@
+"Src/Convert.o"
+"Src/LED.o"
+"Src/Lcd.o"
+"Src/Main.o"
+"Src/buzzer.o"
+"Src/keypad.o"
+"Startup/startup_stm32f446retx.o"

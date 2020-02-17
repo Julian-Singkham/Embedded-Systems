@@ -1,0 +1,31 @@
+#Main.s
+#Julian Singkham
+#CE 2801
+#Lab 4
+#Description: Send commands to the LCD
+
+.syntax unified
+.cpu cortex-m4
+.thumb
+.section .text
+	.equ INSTRUCTIONS_PER_500_MS, 0x9C4000
+
+	.equ GPIO_MODER, 0x00
+	.equ GPIO_PUPDR, 0x0C
+
+.global main
+main:
+	ldr r5, [r4, #MODER]
+	bic r5, r5, 3<<26
+	str r5, [r4, #GPIO_MODER]
+
+	ldr r5, [r4, #GPIO_PUPDR]
+	bic r5, r5, 3<<26
+	orr r5, r5, 1<<26
+	str r5, [r4, #GPIO_PUPDR]
+	bl main
+
+.data
+	msg: .asciz "Im a string"
+
+

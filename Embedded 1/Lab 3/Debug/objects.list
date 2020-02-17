@@ -1,0 +1,7 @@
+"src/Main.o"
+"src/delay_ms.o"
+"src/num_to_ASCII.o"
+"src/num_to_LED.o"
+"src/num_to_LED_init.o"
+"startup/startup_stm32.o"
+"startup/sysmem.o"

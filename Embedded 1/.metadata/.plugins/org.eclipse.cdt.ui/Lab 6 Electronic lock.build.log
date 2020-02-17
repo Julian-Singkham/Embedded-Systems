@@ -1,0 +1,17 @@
+22:23:07 **** Incremental Build of configuration Debug for project Lab 6 Electronic lock ****
+make -j8 all 
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -x assembler-with-cpp --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/Main.o" "../Src/Main.s"
+arm-none-eabi-gcc -o "Lab 6 Electronic lock.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\School\Embedded 1\Lab 6 Electronic lock\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Lab 6 Electronic lock.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Lab 6 Electronic lock.elf
+ 
+arm-none-eabi-objdump -h -S  Lab\ 6\ Electronic\ lock.elf  > "Lab 6 Electronic lock.list"
+arm-none-eabi-size   Lab\ 6\ Electronic\ lock.elf 
+   text	   data	    bss	    dec	    hex	filename
+   2524	    116	   1564	   4204	   106c	Lab 6 Electronic lock.elf
+Finished building: default.size.stdout
+Finished building: Lab 6 Electronic lock.list
+ 
+ 
+
+22:23:09 Build Finished. 0 errors, 0 warnings. (took 2s.83ms)
+
