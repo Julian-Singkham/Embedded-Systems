@@ -1,0 +1,10 @@
+11:47:34 **** Incremental Build of configuration Debug for project Lab 6 - Console ****
+make -j8 all 
+arm-none-eabi-size   Lab\ 6\ -\ Console.elf 
+   text	   data	    bss	    dec	    hex	filename
+   9684	    472	   1584	  11740	   2ddc	Lab 6 - Console.elf
+Finished building: default.size.stdout
+ 
+
+11:47:36 Build Finished. 0 errors, 0 warnings. (took 1s.135ms)
+

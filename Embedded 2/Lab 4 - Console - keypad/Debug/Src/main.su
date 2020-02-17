@@ -1,0 +1,3 @@
+main.c:31:6:option_menu	24	static
+main.c:70:5:input_menu	16	static
+main.c:89:5:main	24	static

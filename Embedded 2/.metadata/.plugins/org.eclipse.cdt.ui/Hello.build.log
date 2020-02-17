@@ -1,0 +1,7 @@
+23:03:08 **** Incremental Build of configuration Debug for project Hello ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\Hello.o" "..\\src\\Hello.c" 
+gcc -o Hello.exe "src\\Hello.o" 
+
+23:03:09 Build Finished. 0 errors, 0 warnings. (took 511ms)
+

@@ -1,0 +1,6 @@
+uart_driver.c:22:5:_read	32	static
+uart_driver.c:35:5:_write	32	static
+uart_driver.c:44:6:usart2_getch	8	static
+uart_driver.c:51:6:usart2_putch	16	static
+uart_driver.c:56:6:init_usart2	16	static
+uart_driver.c:86:6:USART2_IRQHandler	16	static

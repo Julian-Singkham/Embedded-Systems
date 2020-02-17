@@ -1,0 +1,6 @@
+keypad.c:27:6:keypad_setup	4	static
+keypad.c:37:5:keypad_getkey_noblock	8	static
+keypad.c:46:5:keypad_getkey	16	static
+keypad.c:60:12:keypad_scan	16	static
+keypad.c:84:12:keypad_get	24	static
+keypad.c:159:6:keypad_getchar	16	static

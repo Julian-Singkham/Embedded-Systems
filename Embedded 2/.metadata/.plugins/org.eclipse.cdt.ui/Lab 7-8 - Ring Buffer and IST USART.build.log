@@ -1,0 +1,18 @@
+11:51:04 **** Incremental Build of configuration Debug for project Lab 7-8 - Ring Buffer and IST USART ****
+make -j8 all 
+arm-none-eabi-gcc "../Src/Ring_Buffer.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32 -DSTM32F4 -DSTM32F446RETx -DDEBUG -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Src/Ring_Buffer.d" -MT"Src/Ring_Buffer.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Src/Ring_Buffer.o"
+arm-none-eabi-gcc "../Src/uart_driver.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32 -DSTM32F4 -DSTM32F446RETx -DDEBUG -c -I../Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Src/uart_driver.d" -MT"Src/uart_driver.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Src/uart_driver.o"
+arm-none-eabi-gcc -o "Lab 7-8 - Ring Buffer and IST USART.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\School\Embedded 2\Lab 7-8 - Ring Buffer and IST USART\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Lab 7-8 - Ring Buffer and IST USART.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Lab 7-8 - Ring Buffer and IST USART.elf
+ 
+arm-none-eabi-objdump -h -S  Lab\ 7-8\ -\ Ring\ Buffer\ and\ IST\ USART.elf  > "Lab 7-8 - Ring Buffer and IST USART.list"
+arm-none-eabi-size   Lab\ 7-8\ -\ Ring\ Buffer\ and\ IST\ USART.elf 
+   text	   data	    bss	    dec	    hex	filename
+  26296	    472	   1712	  28480	   6f40	Lab 7-8 - Ring Buffer and IST USART.elf
+Finished building: default.size.stdout
+ 
+Finished building: Lab 7-8 - Ring Buffer and IST USART.list
+ 
+
+11:51:08 Build Finished. 0 errors, 0 warnings. (took 4s.21ms)
+

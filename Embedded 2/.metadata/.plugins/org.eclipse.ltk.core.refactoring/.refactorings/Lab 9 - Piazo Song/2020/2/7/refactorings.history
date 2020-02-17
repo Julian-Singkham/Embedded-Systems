@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;Lab 9 - Piazo Song/Inc/Tones and Songs.h&apos; to &apos;music.h&apos;" description="Rename resource &apos;Tones and Songs.h&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Inc/Tones and Songs.h" name="music.h" stamp="1581470163927" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;Lab 9 - Piazo Song/Src/Guile&apos;s theme.c&apos; to &apos;Music.c&apos;" description="Rename resource &apos;Guile&apos;s theme.c&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Src/Guile&apos;s theme.c" name="Music.c" stamp="1581470746265" updateReferences="true"/>
+</session>

@@ -1,0 +1,10 @@
+20:20:22 **** Incremental Build of configuration Debug for project Lab 9 - Piazo Song john ****
+make -j8 all 
+arm-none-eabi-size   Lab\ 9\ -\ Piazo\ Song\ john.elf 
+   text	   data	    bss	    dec	    hex	filename
+  13792	    520	   1712	  16024	   3e98	Lab 9 - Piazo Song john.elf
+Finished building: default.size.stdout
+ 
+
+20:20:23 Build Finished. 0 errors, 0 warnings. (took 1s.66ms)
+

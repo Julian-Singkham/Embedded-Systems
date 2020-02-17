@@ -1,0 +1,41 @@
+/**
+  ******************************************************************************
+  * @file     : main.c
+  * @brief    : Main program body
+  *           : Lab 9: Piazo Song
+  * @date     : FEB 09 2020
+  * @author   : Julian Singkham
+  ******************************************************************************
+  * @attention
+  *
+  * what it do
+  *
+  ******************************************************************************
+**/
+#include "Tones_and_Songs.h"
+
+#define NOTE_COUNT 50
+void Guiles_theme(void){
+    //Creates the song array, I did this so that the 2 temp arrays, notes[]
+    //and noteDurations[] don't clog up the memory
+    Tone song[NOTE_COUNT];
+    if(1){
+        //Temp Array
+        int notes[] = {
+            NOTE_DS4, NOTE_DS4, NOTE_D4, NOTE_D4,  NOTE_DS4, NOTE_D4, NOTE_DS4, 
+            NOTE_DS4, NOTE_D4, NOTE_D4, NOTE_DS4, NOTE_D4, NOTE_DS4, NOTE_D4, 
+            NOTE_DS4, NOTE_D4, NOTE_F4, NOTE_F4, NOTE_DS4, NOTE_D4, NOTE_AS3
+        };
+        //Temp array, timing in ms
+        int noteDurations[] = {
+            167, 200, 167, 200, 1000, 250, 167, 200, 167, 200, 1000, 250,
+            167, 200, 167, 200, 250, 250, 167, 1000, 250
+        };
+        
+        for(int i = 0; i < NOTE_COUNT; i++){
+            song[i].note = notes[i];
+            song[i].duration = noteDurations[i];
+        }
+    }
+    167= 84 mil/x
+}

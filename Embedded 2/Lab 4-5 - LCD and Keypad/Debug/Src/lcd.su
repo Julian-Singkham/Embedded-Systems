@@ -1,0 +1,10 @@
+lcd.c:28:6:lcd_setup	8	static
+lcd.c:53:6:lcd_clear	8	static
+lcd.c:60:6:lcd_home	8	static
+lcd.c:69:6:lcd_print_num	32	static
+lcd.c:83:6:lcd_print_string	24	static
+lcd.c:98:6:lcd_set_position	16	static
+lcd.c:116:13:lcd_delay	16	static
+lcd.c:144:13:lcd_write_instruction	16	static
+lcd.c:161:6:lcd_write_data	16	static
+lcd.c:173:6:error	8	static

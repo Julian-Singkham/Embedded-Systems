@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item key="selection" value="MX_GPIO_Init"/>
+		<item key="wrap" value="true"/>
+		<item key="casesensitive" value="false"/>
+		<item key="wholeword" value="false"/>
+		<item key="incremental" value="false"/>
+		<item key="isRegEx" value="false"/>
+		<list key="findhistory">
+			<item value="MX_GPIO_Init"/>
+			<item value="getchar"/>
+			<item value="getchar`"/>
+			<item value="current_song"/>
+			<item value="cur"/>
+			<item value="systick"/>
+			<item value="cur_song"/>
+			<item value="imperial_march"/>
+			<item value="ds4"/>
+			<item value="d4"/>
+			<item value="f4"/>
+			<item value="as3"/>
+			<item value="pwm"/>
+			<item value="TIM_PWM_START"/>
+			<item value="echo"/>
+		</list>
+		<list key="replacehistory">
+			<item value="mode"/>
+			<item value="frame_menu"/>
+			<item value="~"/>
+			<item value="uart_driver.h"/>
+			<item value="uart_driver"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="614"/>
+		<item key="DIALOG_Y_ORIGIN" value="649"/>
+		<item key="DIALOG_WIDTH" value="284"/>
+		<item key="DIALOG_HEIGHT" value="391"/>
+		<item key="DIALOG_FONT_NAME" value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI"/>
+	</section>
+</section>

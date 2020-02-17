@@ -1,0 +1,10 @@
+14:19:44 **** Incremental Build of configuration Debug for project Lab 2 - Knight Rider ****
+make -j8 all 
+arm-none-eabi-size   Lab\ 2\ -\ Knight\ Rider.elf 
+   text	   data	    bss	    dec	    hex	filename
+   1072	     36	   1564	   2672	    a70	Lab 2 - Knight Rider.elf
+Finished building: default.size.stdout
+ 
+
+14:19:45 Build Finished. 0 errors, 0 warnings. (took 1s.206ms)
+

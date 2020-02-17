@@ -1,0 +1,3 @@
+timer.c:28:6:delay_ms	16	static
+timer.c:43:6:delay_us	16	static
+timer.c:57:13:reset_systick	4	static
