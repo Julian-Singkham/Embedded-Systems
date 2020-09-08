@@ -1,4 +1,0 @@
-timing.c:18:6:delay_ms	16	static
-timing.c:24:6:delay_us	16	static
-timing.c:30:13:reset_regs	4	static
-timing.c:35:13:wait_delay	4	static

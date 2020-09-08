@@ -1,3 +1,0 @@
-music.c:17:13:change_freq	16	static
-music.c:22:13:change_delay	16	static
-music.c:27:6:HAL_TIM_PeriodElapsedCallback	32	static
